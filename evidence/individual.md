@@ -1,10 +1,17 @@
-# Evidencia individual — completar antes de entregar
+# Evidencia individual
 
-- Nombre:
-- Repositorio y commit evaluado:
-- Mi contribución concreta:
-- Decisión técnica que puedo explicar:
-- Comando o prueba que ejecuté y resultado:
-- Limitación o riesgo que encontré:
-- Uso de IA (herramienta, propósito, fragmentos influenciados y validación humana):
 
+- Estudiante: Espinoza Landeta Oscar — 3523110665 (Equipo-03)
+
+- Commit SHA evaluado: [PENDIENTE — pegar el SHA de main tras el merge + tag week-01, con `git rev-parse HEAD`, una vez que CI salga en verde]
+  · Mi commit individual de contribución (rama docs): 6d0da55
+
+- Decisión técnica que puedo explicar: Elegí PWA sobre Next.js en lugar de web tradicional, app nativa o multiplataforma, porque es la única que cumple la restricción dominante del problema: operar con conectividad intermitente (RF-03 / RNF-02) mediante Service Worker + caché. Reutiliza el stack del curso (un solo código base, `npm ci` reproducible), es instalable sin tiendas desde el navegador y se despliega en Vercel/Docker. Asumo sus límites reales: soporte desigual en Safari y APIs de dispositivo parciales, con mitigaciones previstas para S2–S5. Descarté nativa (2 bases de código fuera del stack, inviable en 14 semanas) y multiplataforma (framework ajeno a las competencias evaluadas, distribución atada a tiendas).
+
+- Prueba que ejecuté y resultado: `npm run verify` → `Starter verificable: PASS` (es un check estructural: solo verifica existencia de los artefactos requeridos, no su contenido ni la lógica). El check público `public-tests/check.sh` NO se validó localmente de forma fiable: ejecutado directo falla por saltos de línea CRLF (`set: pipefail invalid option`) y, a través del pipe con `sed`, imprime `PUBLIC_OK` pero omite la línea de escaneo de secretos porque `rg` no está en el PATH de Git Bash en Windows. Por eso la validación real (LF + ripgrep, ya presentes en Ubuntu) se acredita en CI, que debe quedar en verde sobre `main` antes de considerar aprobado el check.
+
+- Limitación o fallo diagnosticado: Dos limitaciones. (1) Funcional: en Semana 1 el offline aún no existe — `src/app/page.tsx:13` declara literalmente "PWA aún no implementada". Manifest, Service Worker, caché, cola de sincronización, notificaciones y autenticación quedan explícitamente fuera hasta S2–S6, así que la decisión por PWA todavía no tiene evidencia de caché; solo se valida la base reproducible, requisitos y documentación. (2) De entorno local en Windows: los checks del starter (`make verify`/`check.sh`) sufren fricciones propias del SO — la política de ejecución de PowerShell bloqueaba `npm.ps1` (resuelto con `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`), el checkout con `autocrlf=true` genera CRLF que rompe `set -euo pipefail` en `check.sh`, y `ripgrep` instalado vía winget no queda en el PATH de Git Bash. Ninguna de estas afecta a CI/Ubuntu, pero sí al resultado reproducido localmente.
+
+- Cambio que podría defender o modificar en vivo: Puedo modificar la tabla comparativa del ADR-001 (p. ej. agregar el criterio de costo de distribución) o reformular un requisito no funcional para hacerlo más medible (RNF-01: umbral de 3 s con Fast 3G en Chrome DevTools) y re-ejecutar `npm run verify` para demostrar que el repositorio sigue en verde. También puedo explicar la fricción CRLF/`rg` y su diferencia con el comportamiento en CI.
+
+- Uso declarado de IA (herramienta, propósito, validación): Usé un asistente de IA (opencode/Muse Spark) principalmente como guía de estructura para el ADR-001 (bosquejo de la tabla de las 4 alternativas, matriz de riesgos y tabla de validación por semanas), para revisar el encuadre y los requisitos, y para diagnosticar los tropiezos de entorno en Windows (política de ejecución, CRLF, `rg` en Git Bash). La redacción final, los trazados a RF/RNF y la decisión propia son míos; ajusté y verifiqué el texto contra `docs/requirements.md`, el starter y el ADR publicado, y ejecuté la verificación local (`npm run verify`) antes de cerrar. Sí, la IA redactó plantillas y detectó problemas; la validación humana y la defensa en vivo son mías.
