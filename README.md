@@ -1,6 +1,6 @@
-# PWA de inspecciones de laboratorio — proyecto base
+# PWA de inspecciones de laboratorio — Universidad Tigres de Tehuacan
 
-Starter oficial para la materia **Aplicaciones Web Progresivas**.
+Starter oficial para la materia **Aplicaciones Web Progresivas**. Proyecto base de la PWA offline-first para registrar inspecciones y mantenimiento de laboratorios, usando únicamente datos sintéticos.
 
 Este repositorio es el punto de partida común para las actividades de las semanas 1–13. En la Semana 1 no debes construir todavía toda la PWA: debes poner en marcha este proyecto, documentar el problema y dejar una primera versión reproducible. Cada semana conservarás el mismo repositorio y agregarás la capacidad indicada por la actividad.
 
@@ -46,5 +46,18 @@ No uses datos reales de personas, laboratorios o estudiantes. Todo dato del star
 - `scripts/verify.mjs`: verificación reproducible local.
 - `tests/`: prueba mínima del starter.
 
-Las decisiones de arquitectura y las nuevas carpetas se incorporan en las actividades correspondientes; no es necesario adelantarlas.
+## Supuestos y decisiones
+- Datos exclusivamente sintéticos: provienen de src/lib/data/inspections.ts; no se usan datos reales de personas ni de la institución.
+- Conectividad intermitente (restricción dominante): el diseño debe operar sin conexión y sincronizar cuando haya red (RF-03 / RNF-02).
+- Decisión de arquitectura: PWA sobre Next.js (App Router) + TypeScript; ver detalle en docs/decision-record.md (ADR-001).
+- Alcance de Semana 1: solo base reproducible y documentación. Manifest, Service Worker, sincronización, notificaciones y autenticación quedan fuera hasta S2–S6.
+- Nombre de la institución: «Universidad Tigres de Tehuacan» (caso académico sintético).
 
+## Evidencia
+- Verificación reproducible: npm run verify → Starter verificable: PASS. Genera reports/verification.json (check estructural de artefactos requeridos).
+- Check público: bash public-tests/check.sh → PUBLIC_OK tras normalizar fin de línea y disponer de ripgrep localmente; la validación completa se acredita en CI/Ubuntu y en el evaluador privado.
+- Commit evaluado: ver evidence/individual.md (SHA definitivo tras merge + tag week-01).
+- CI: GitHub Actions week-01-starter-feedback.yml (install → verify → test → build → check).
+
+## Decisiones de arquitectura
+Las decisiones de arquitectura y las nuevas carpetas se incorporan en las actividades correspondientes; no es necesario adelantarlas. Ver historial en docs/decision-record.md.

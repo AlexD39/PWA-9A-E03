@@ -8,7 +8,14 @@
 
 - Decisión técnica que puedo explicar: Elegí PWA sobre Next.js en lugar de web tradicional, app nativa o multiplataforma, porque es la única que cumple la restricción dominante del problema: operar con conectividad intermitente (RF-03 / RNF-02) mediante Service Worker + caché. Reutiliza el stack del curso (un solo código base, `npm ci` reproducible), es instalable sin tiendas desde el navegador y se despliega en Vercel/Docker. Asumo sus límites reales: soporte desigual en Safari y APIs de dispositivo parciales, con mitigaciones previstas para S2–S5. Descarté nativa (2 bases de código fuera del stack, inviable en 14 semanas) y multiplataforma (framework ajeno a las competencias evaluadas, distribución atada a tiendas).
 
-- Prueba que ejecuté y resultado: `npm run verify` → `Starter verificable: PASS` (es un check estructural: solo verifica existencia de los artefactos requeridos, no su contenido ni la lógica). El check público `public-tests/check.sh` NO se validó localmente de forma fiable: ejecutado directo falla por saltos de línea CRLF (`set: pipefail invalid option`) y, a través del pipe con `sed`, imprime `PUBLIC_OK` pero omite la línea de escaneo de secretos porque `rg` no está en el PATH de Git Bash en Windows. Por eso la validación real (LF + ripgrep, ya presentes en Ubuntu) se acredita en CI, que debe quedar en verde sobre `main` antes de considerar aprobado el check.
+- Prueba que ejecuté y resultado: `npm run verify` → `Starter verificable: PASS`
+  (check estructural: verifica existencia de artefactos, no contenido ni lógica).
+  `bash public-tests/check.sh` → `PUBLIC_OK` tras normalizar CRLF (`sed 's/\r$//' ... | bash`)
+  e instalar ripgrep en WSL. Nota honesta: este check imprime PUBLIC_OK aunque su escaneo
+  (`rg`) detecte coincidencias con palabras como "secretos"/"tokens"/"keys" presentes en la
+  documentación (falsos positivos) y en el paquete `js-tokens`; por la inversión con `!` no aborta,
+  por lo que PUBLIC_OK no demuestra ausencia de secretos. La garantía de privacidad la cubren el
+  evaluador privado y el contenido sintético del repo.
 
 - Limitación o fallo diagnosticado: Dos limitaciones. (1) Funcional: en Semana 1 el offline aún no existe — `src/app/page.tsx:13` declara literalmente "PWA aún no implementada". Manifest, Service Worker, caché, cola de sincronización, notificaciones y autenticación quedan explícitamente fuera hasta S2–S6, así que la decisión por PWA todavía no tiene evidencia de caché; solo se valida la base reproducible, requisitos y documentación. (2) De entorno local en Windows: los checks del starter (`make verify`/`check.sh`) sufren fricciones propias del SO — la política de ejecución de PowerShell bloqueaba `npm.ps1` (resuelto con `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`), el checkout con `autocrlf=true` genera CRLF que rompe `set -euo pipefail` en `check.sh`, y `ripgrep` instalado vía winget no queda en el PATH de Git Bash. Ninguna de estas afecta a CI/Ubuntu, pero sí al resultado reproducido localmente.
 
