@@ -4,7 +4,7 @@
 
 ## 1. Problema y contexto
 
-La Universidad Tigres Tecnicos necesita registrar inspecciones de mantenimiento en tres laboratorios: Redes, Electrónica y Software. Actualmente los técnicos dependen de conectividad a internet para consultar o registrar hallazgos, pero la red es irregular en varias áreas del campus y se pierde información por la inestabilidad de la conexión. En ocasiones dos técnicos intentan resolver el mismo hallazgo por falta de organización y registro centralizado.
+La Universidad Tigres de Tehuacan necesita registrar inspecciones de mantenimiento en tres laboratorios: Redes, Electrónica y Software. Actualmente los técnicos dependen de conectividad a internet para consultar o registrar hallazgos, pero la red es irregular en varias áreas del campus y se pierde información por la inestabilidad de la conexión. En ocasiones dos técnicos intentan resolver el mismo hallazgo por falta de organización y registro centralizado.
 
 Se requiere una aplicación que permita operar sin conexión y sincronizar cuando la red esté disponible, garantizando que cada inspección quede registrada de forma confiable.
 
