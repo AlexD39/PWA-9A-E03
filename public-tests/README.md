@@ -1,4 +1,5 @@
-# Check público del proyecto base
+# Check público de estructura
 
-Ejecuta `bash public-tests/check.sh` desde la raíz del repositorio. Comprueba que el starter conserva sus archivos mínimos y que no se han añadido secretos conocidos.
+Desde la raíz del proyecto: `bash public-tests/check.sh` o, sin Bash, `node scripts/verify.mjs --structure`. Solo comprueba archivos requeridos. No califica documentos ni detecta secretos.
 
+Para prueba y build usen `npm run verify`; produce `reports/verification.json`. La calidad del contenido se revisa con la rúbrica.
