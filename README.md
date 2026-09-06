@@ -10,6 +10,12 @@ Este repositorio es el punto de partida común para las actividades de las seman
 - npm 10 o superior.
 - Git y una cuenta de GitHub.
 
+## Versiones verificadas
+
+- Node.js: v24.11.1
+- npm: 11.6.2
+- Git: 2.52.0.windows.1
+
 ## Arranque verificable
 
 ```bash
