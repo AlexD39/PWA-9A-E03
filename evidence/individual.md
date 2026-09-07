@@ -25,6 +25,7 @@
 
 ## Integrante 2 
 - Estudiante: Contreras Martinez Alejandro — 3523110460 (Equipo-03)
+- Commit SHA evaluado: 7785061563df95c9e273fc89c41777e2f2dc2352
   · Mi commit individual de contribución: 01ea8ed
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. También registré las versiones reales del entorno en `README.md` y revisé que el workflow publique `reports/verification.json` como el artefacto `starter-week-01-evidence`.
