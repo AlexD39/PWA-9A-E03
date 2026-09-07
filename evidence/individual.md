@@ -3,7 +3,7 @@
 
 - Estudiante: Espinoza Landeta Oscar — 3523110665 (Equipo-03)
 
-- Commit SHA evaluado: [PENDIENTE — pegar el SHA de main tras el merge + tag week-01, con `git rev-parse HEAD`, una vez que CI salga en verde]
+- Commit SHA evaluado: 7785061563df95c9e273fc89c41777e2f2dc2352
   · Mi commit individual de contribución (rama docs): 6d0da55
 
 - Decisión técnica que puedo explicar: Elegí PWA sobre Next.js en lugar de web tradicional, app nativa o multiplataforma, porque es la única que cumple la restricción dominante del problema: operar con conectividad intermitente (RF-03 / RNF-02) mediante Service Worker + caché. Reutiliza el stack del curso (un solo código base, `npm ci` reproducible), es instalable sin tiendas desde el navegador y se despliega en Vercel/Docker. Asumo sus límites reales: soporte desigual en Safari y APIs de dispositivo parciales, con mitigaciones previstas para S2–S5. Descarté nativa (2 bases de código fuera del stack, inviable en 14 semanas) y multiplataforma (framework ajeno a las competencias evaluadas, distribución atada a tiendas).
@@ -23,7 +23,9 @@
 
 - Uso declarado de IA (herramienta, propósito, validación): Usé un asistente de IA (opencode/Muse Spark) principalmente como guía de estructura para el ADR-001 (bosquejo de la tabla de las 4 alternativas, matriz de riesgos y tabla de validación por semanas), para revisar el encuadre y los requisitos, y para diagnosticar los tropiezos de entorno en Windows (política de ejecución, CRLF, `rg` en Git Bash). La redacción final, los trazados a RF/RNF y la decisión propia son míos; ajusté y verifiqué el texto contra `docs/requirements.md`, el starter y el ADR publicado, y ejecuté la verificación local (`npm run verify`) antes de cerrar. Sí, la IA redactó plantillas y detectó problemas; la validación humana y la defensa en vivo son mías.
 
-## Integrante: Contreras Martinez Alejandro — 3523110460
+## Integrante 2 
+- Estudiante: Contreras Martinez Alejandro — 3523110460 (Equipo-03)
+  · Mi commit individual de contribución: 01ea8ed
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. También registré las versiones reales del entorno en `README.md` y revisé que el workflow publique `reports/verification.json` como el artefacto `starter-week-01-evidence`.
 - Decisión que puedo explicar y por qué: La verificación principal debe concentrarse en `npm run verify`, porque la versión aclarada ejecuta la prueba proporcionada y el build, además de revisar la estructura. El workflow usa Node 20.19.6 y `npm ci` para mantener una ejecución reproducible en CI.
