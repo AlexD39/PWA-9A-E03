@@ -32,7 +32,7 @@ make verify
 bash public-tests/check.sh
 ```
 
-`make verify` genera `reports/verification.json`; ese archivo y la corrida verde de GitHub Actions son la evidencia técnica del arranque.
+`npm run verify` genera `reports/verification.json`, ejecuta la prueba proporcionada y compila la aplicación. `make verify` es equivalente. El reporte y la corrida verde de GitHub Actions son evidencia técnica, no una calificación automática de la documentación.
 
 ## Flujo de trabajo del curso
 
@@ -60,10 +60,10 @@ No uses datos reales de personas, laboratorios o estudiantes. Todo dato del star
 - Nombre de la institución: «Universidad Tigres de Tehuacan» (caso académico sintético).
 
 ## Evidencia
-- Verificación reproducible: npm run verify → Starter verificable: PASS. Genera reports/verification.json (check estructural de artefactos requeridos).
-- Check público: bash public-tests/check.sh → PUBLIC_OK tras normalizar fin de línea y disponer de ripgrep localmente; la validación completa se acredita en CI/Ubuntu y en el evaluador privado.
-- Commit evaluado: ver evidence/individual.md (SHA definitivo tras merge + tag week-01).
-- CI: GitHub Actions week-01-starter-feedback.yml (install → verify → test → build → check).
+- Verificación reproducible: `npm run verify` comprueba la estructura, ejecuta la prueba proporcionada y realiza el build; genera `reports/verification.json`.
+- Check público: `bash public-tests/check.sh` ejecuta la verificación estructural; no certifica la calidad de los documentos ni la ausencia de secretos.
+- CI: GitHub Actions `week-01-starter-feedback.yml` usa Node 20.19.6, ejecuta `npm ci` y `npm run verify`, y publica el artefacto `starter-week-01-evidence`.
+- SHA final: se obtiene después del último commit con `git rev-parse HEAD` y se entrega en Classroom junto con el enlace de Actions de ese mismo SHA.
 
 ## Decisiones de arquitectura
 Las decisiones de arquitectura y las nuevas carpetas se incorporan en las actividades correspondientes; no es necesario adelantarlas. Ver historial en docs/decision-record.md.
