@@ -34,6 +34,18 @@ bash public-tests/check.sh
 
 `npm run verify` genera `reports/verification.json`, ejecuta la prueba proporcionada y compila la aplicación. `make verify` es equivalente. El reporte y la corrida verde de GitHub Actions son evidencia técnica, no una calificación automática de la documentación.
 
+## Semana 2: shell instalable y manifest
+
+La aplicación declara sus metadatos PWA en `public/manifest.webmanifest`. El manifest usa `/` como ruta de inicio y alcance, solicita visualización `standalone` y referencia iconos públicos de 192 y 512 píxeles desde `public/icons/`. `src/app/layout.tsx` enlaza el manifest y mantiene el color de tema consistente.
+
+La prueba `tests/manifest.spec.ts` valida los campos instalables esenciales, las rutas de ambos iconos y el enlace desde el layout. Se incluye en la suite reproducible mediante:
+
+```bash
+npm test
+```
+
+La evaluación de Semana 2 también requiere que `npm run build` termine correctamente. El workflow `.github/workflows/week-02-w02-shell-manifest.yml` ejecuta la instalación limpia, comprueba los artefactos compartidos de la actividad y corre las pruebas; su resultado completo depende además de los archivos de interfaz asignados al otro integrante.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
