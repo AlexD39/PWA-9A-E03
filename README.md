@@ -38,13 +38,18 @@ bash public-tests/check.sh
 
 La aplicación declara sus metadatos PWA en `public/manifest.webmanifest`. El manifest usa `/` como ruta de inicio y alcance, solicita visualización `standalone` y referencia iconos públicos de 192 y 512 píxeles desde `public/icons/`. `src/app/layout.tsx` enlaza el manifest y mantiene el color de tema consistente.
 
-La prueba `tests/manifest.spec.ts` valida los campos instalables esenciales, las rutas de ambos iconos y el enlace desde el layout. Se incluye en la suite reproducible mediante:
+La prueba `tests/manifest.spec.ts` valida los campos instalables esenciales, las rutas de ambos iconos y el enlace desde el layout. Para validar la entrega de Semana 2 se ejecutan, desde la raíz del repositorio:
 
 ```bash
+npm ci
 npm test
+npm run test -- --run
+npm run build
+npm run verify
+node scripts/verify.mjs --structure
 ```
 
-La evaluación de Semana 2 también requiere que `npm run build` termine correctamente. El workflow `.github/workflows/week-02-w02-shell-manifest.yml` ejecuta la instalación limpia, comprueba los artefactos compartidos de la actividad y corre las pruebas; su resultado completo depende además de los archivos de interfaz asignados al otro integrante.
+En Windows, `make verify` es equivalente a `npm run verify` cuando GNU Make está disponible, y `bash public-tests/check.sh` ejecuta el mismo chequeo estructural. El workflow `.github/workflows/week-02-w02-shell-manifest.yml` realiza la instalación limpia, el build, la comprobación de artefactos obligatorios, las pruebas y la publicación de evidencia de CI. Su resultado completo también depende de los archivos de interfaz asignados al otro integrante.
 
 ## Flujo de trabajo del curso
 
@@ -74,7 +79,8 @@ No uses datos reales de personas, laboratorios o estudiantes. Todo dato del star
 ## Evidencia
 - Verificación reproducible: `npm run verify` comprueba la estructura, ejecuta la prueba proporcionada y realiza el build; genera `reports/verification.json`.
 - Check público: `bash public-tests/check.sh` ejecuta la verificación estructural; no certifica la calidad de los documentos ni la ausencia de secretos.
-- CI: GitHub Actions `week-01-starter-feedback.yml` usa Node 20.19.6, ejecuta `npm ci` y `npm run verify`, y publica el artefacto `starter-week-01-evidence`.
+- CI de Semana 1: GitHub Actions `week-01-starter-feedback.yml` usa Node 20.19.6, ejecuta `npm ci` y `npm run verify`, y publica el artefacto `starter-week-01-evidence`.
+- CI de Semana 2: GitHub Actions `.github/workflows/week-02-w02-shell-manifest.yml` ejecuta una instalación limpia, el build, la comprobación de artefactos obligatorios y la suite de pruebas, y publica la evidencia disponible como `academic-evidence-w02-shell-manifest`.
 - SHA final: se obtiene después del último commit con `git rev-parse HEAD` y se entrega en Classroom junto con el enlace de Actions de ese mismo SHA.
 
 ## Decisiones de arquitectura
