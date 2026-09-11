@@ -29,7 +29,7 @@ a { color: inherit; }
 
 button, input { font: inherit; }
 
-.app-shell { min-height: 100vh; }
+.app-shell { min-height: 100vh; padding-bottom: 70px; }
 .app-header {
   align-items: center;
   background: var(--navy);
@@ -142,7 +142,19 @@ dd { font-size: .78rem; font-weight: 700; margin: 0; text-align: right; }
 .primary-button:hover { background: var(--accent-dark); }
 .app-footer { color: var(--muted); font-size: .8rem; margin: 0 auto; max-width: 1120px; padding: 0 24px 22px; }
 .app-footer > p { margin-bottom: 16px; }
-.bottom-navigation { border-top: 1px solid var(--line); display: flex; justify-content: center; gap: 8px; }
+.bottom-navigation {
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  bottom: 0;
+  box-shadow: 0 -4px 14px rgba(26, 53, 80, .08);
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  z-index: 20;
+}
 .nav-item { align-items: center; color: var(--muted); display: flex; flex: 1; flex-direction: column; gap: 4px; max-width: 130px; padding: 13px 8px 4px; text-decoration: none; }
 .nav-item:hover, .nav-item:focus-visible, .nav-item-active { color: var(--accent-dark); }
 .nav-item-active { border-top: 2px solid var(--accent); margin-top: -1px; }
