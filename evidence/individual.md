@@ -14,6 +14,18 @@
 - Limitación, dificultad o riesgo que identifiqué: En Semana 1 el offline aún no existe; `src/app/page.tsx` indica `PWA aún no implementada`. Manifest, Service Worker, sincronización, notificaciones y autenticación quedan para semanas posteriores. También encontré diferencias de CRLF y ejecución de scripts Bash entre Windows, WSL y CI.
 - Uso de IA: Usé opencode/Muse Spark para estructurar el ADR-001, revisar el encuadre y los requisitos, y diagnosticar problemas de entorno. Validé y ajusté la redacción contra el starter y ejecuté la verificación; puedo explicar y defender los cambios.
 
+### Semana 2 — Espinoza Landeta Oscar — 3523110665
+
+- Mi contribución concreta: Implementé `src/components/app-shell.tsx` con header, indicador de estado, banner de instalación y navegación inferior. Integré el shell en `src/app/page.tsx`, rediseñé la interfaz basada en las pantallas de Stitch, agregué estados de carga (`src/app/loading.tsx`), error (`src/app/error.tsx`) y vacío dentro de la página. Estilicé la interfaz con responsive mobile-first en `src/app/globals.css` y ajusté el navbar para que sea fijo en la parte inferior del viewport.
+- Decisión que puedo explicar y por qué: El `AppShell` concentra la estructura global (header, footer, navegación) para evitar duplicación entre páginas. Los estados de carga y error están en archivos separados porque el App Router los maneja como segmentos de error boundary. El navbar quedó fijo porque el contrato de Semana 2 requiere una navegación principal accesible en todo momento.
+- Comando o prueba proporcionada que ejecuté: `npm test`, `npm run build`, `npm run verify` y pruebas manuales de responsive (390x844 y escritorio), navegación por teclado y revisión de estados de carga, error y vacío.
+- Resultado real observado: `starter.spec.mjs: PASS`, build exitoso sin errores, verificación técnica `pass`. Las pruebas manuales confirmaron responsive correcto, navegación funcional, estados visibles y navbar fijo en ambos viewports.
+- Qué verifica y qué no verifica: Verifica la interfaz, la navegación, los estados de UI y la accesibilidad básica. No verifica Service Worker, funcionamiento offline, sincronización ni instalación real de la PWA.
+- Limitación o riesgo: El navbar inferior es visible al final del contenido en escritorio; se resolvió con `position: fixed`. La navegación a "Nueva", "Sync" y "Ajustes" muestra un mensaje informativo porque esas funciones corresponden a semanas posteriores. El banner de instalación PWA es informativo hasta que el manifest esté activo en producción.
+- Uso de IA: Utilicé opencode para diseñar la estructura del AppShell, proponer los estilos responsive, validar los estados de UI y revisar la accesibilidad. Verifiqué manualmente cada cambio antes de commitearlo.
+- SHA del commit de contribución: `a99ce35` (`fix: navbar fijo en parte inferior para movil y escritorio`).
+- SHA final de entrega: pendiente; se registrará después de ejecutar la validación conjunta sobre el commit final de la rama.
+
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. Mi cambio principal está en el commit `01ea8ed`.
