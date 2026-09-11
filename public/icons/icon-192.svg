@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-labelledby="title">
+  <title id="title">Inspecciones de laboratorio</title>
+  <rect width="192" height="192" rx="40" fill="#172b62"/>
+  <path d="M66 42h60v18h-7v22.5l27.7 48A13 13 0 0 1 135.4 150H56.6a13 13 0 0 1-11.3-19.5l27.7-48V60h-7V42Z" fill="#fff"/>
+  <path d="M67 113h58l13 22.5a4 4 0 0 1-3.5 6H57.5a4 4 0 0 1-3.5-6L67 113Z" fill="#5dd6c0"/>
+  <circle cx="83" cy="127" r="6" fill="#172b62"/>
+  <circle cx="108" cy="132" r="8" fill="#3156d3"/>
+</svg>
