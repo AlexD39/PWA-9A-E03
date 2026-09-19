@@ -66,6 +66,44 @@ button, input { font: inherit; }
   text-transform: uppercase;
 }
 .status-dot { background: #66d8c8; border-radius: 50%; height: 8px; width: 8px; }
+.connection-offline { border-color: #d9a066; color: #ffe2bd; }
+.connection-offline .status-dot { background: #f0a24a; }
+.update-banner {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid #c6d4ec;
+  border-radius: 7px;
+  bottom: 84px;
+  box-shadow: 0 8px 24px rgba(23, 36, 58, .18);
+  color: var(--ink);
+  display: flex;
+  gap: 10px;
+  left: 16px;
+  margin: 0 auto;
+  max-width: 560px;
+  padding: 12px 14px;
+  position: fixed;
+  right: 16px;
+  z-index: 30;
+}
+.update-banner strong, .update-banner small { display: block; }
+.update-banner strong { font-size: .9rem; }
+.update-banner small { color: var(--muted); font-size: .76rem; margin-top: 2px; }
+.update-button {
+  background: var(--accent);
+  border: 0;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  margin-left: auto;
+  min-height: 40px;
+  padding: 8px 14px;
+  white-space: nowrap;
+}
+.update-button:hover, .update-button:focus-visible { background: var(--accent-dark); }
+.update-button:focus-visible { outline: 3px solid #9ce4d9; outline-offset: 2px; }
+.update-button:disabled { cursor: progress; opacity: .7; }
 .install-banner {
   align-items: center;
   background: #e7efff;
