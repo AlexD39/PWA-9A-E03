@@ -7,7 +7,7 @@ export default function HomePage() {
       <main className="page-shell">
         <section className="hero" aria-labelledby="page-title">
           <div>
-            <p className="eyebrow">Panel operativo · Semana 2</p>
+            <p className="eyebrow">Panel operativo · Semana 3</p>
             <h1 id="page-title">Inspecciones de laboratorio</h1>
             <p className="lead">
               Consulta el estado de mantenimiento con una interfaz preparada para

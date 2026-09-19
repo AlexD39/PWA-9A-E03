@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ConnectionStatus } from "./connection-status";
 
 type AppShellProps = {
   children: ReactNode;
@@ -22,19 +23,16 @@ export function AppShell({ children }: AppShellProps) {
             <small>U. TIGRES DE TEHUACÁN // LAB-SYS</small>
           </span>
         </a>
-        <span className="connection-status" aria-label="Estado de conexión: datos sintéticos locales">
-          <span className="status-dot" aria-hidden="true" />
-          Local
-        </span>
+        <ConnectionStatus />
       </header>
 
       <div className="install-banner" role="status">
         <span className="install-icon" aria-hidden="true">↯</span>
         <span>
-          <strong>Modo PWA en preparación</strong>
-          <small>El shell se puede instalar desde el navegador cuando el manifest esté activo.</small>
+          <strong>Consulta disponible sin conexión</strong>
+          <small>El shell y las inspecciones ya visitadas se sirven desde caché cuando no hay red.</small>
         </span>
-        <span className="banner-mark" aria-hidden="true">S2</span>
+        <span className="banner-mark" aria-hidden="true">S3</span>
       </div>
 
       {children}

@@ -51,6 +51,43 @@ node scripts/verify.mjs --structure
 
 En Windows, `make verify` es equivalente a `npm run verify` cuando GNU Make está disponible, y `bash public-tests/check.sh` ejecuta el mismo chequeo estructural. El workflow `.github/workflows/week-02-w02-shell-manifest.yml` realiza la instalación limpia, el build, la comprobación de artefactos obligatorios, las pruebas y la publicación de evidencia de CI. Su resultado completo también depende de los archivos de interfaz asignados al otro integrante.
 
+## Semana 3: service worker y consulta offline
+
+La aplicación registra `public/sw.js` con alcance `/` desde `src/components/service-worker-manager.tsx`, montado en `src/app/layout.tsx`. La lógica de registro y del ciclo de actualización vive en `src/lib/pwa/register-service-worker.ts`; la estrategia completa, sus supuestos y límites están en `docs/cache-strategy.md`.
+
+Resumen del comportamiento:
+
+- **Precaché atómica** en `install` de `/`, `/offline.html`, el manifest y los dos iconos. Si una URL falla, la versión nueva no se activa y la anterior sigue sirviendo.
+- **Navegación network-first** con respaldo en la copia cacheada de esa ruta y, si no existe, en `public/offline.html`.
+- **Estáticos cache-first** (`/_next/static/`, `/icons/`) porque llevan hash en el nombre. Las rutas `/api/` nunca se interceptan ni se cachean.
+- **Actualización segura:** la versión nueva queda en espera y la interfaz muestra "Hay una versión nueva disponible" con el botón **Actualizar ahora**; solo entonces se envía `SKIP_WAITING`, se limpian las cachés `inspecciones-lab-*` anteriores y la página recarga una sola vez.
+- **Invalidación controlada:** cambiar `CACHE_VERSION` en `sw.js` o enviar el mensaje `CLEAR_CACHES` desde el cliente.
+- El indicador del encabezado muestra "En línea" o "Sin conexión" según `navigator.onLine`.
+
+Supuestos: el service worker solo se registra en producción porque `next dev` sirve chunks sin hash que la caché dejaría obsoletos. Los datos siguen siendo sintéticos y viajan dentro del HTML, por lo que no hay información sensible en caché.
+
+### Ejecución y verificación manual del offline
+
+```bash
+npm ci
+npm run build
+npm run start
+```
+
+Abre <http://localhost:3000>. En DevTools → Application → Service Workers debe aparecer `sw.js` activo y en Cache Storage la caché `inspecciones-lab-v1` con cinco entradas. Marca **Offline** y recarga: el panel sigue visible y el indicador cambia a "Sin conexión". Navega a `/no-existe` en modo offline para ver `offline.html`.
+
+### Verificación automatizada
+
+Las pruebas `tests/service-worker.spec.ts` y `tests/offline.spec.ts` ejecutan `public/sw.js` y el módulo de registro en Node con globales simulados: precaché e instalación atómica, limpieza de versiones, network-first con respaldo, cache-first, exclusiones (`POST`, otro origen, `/api/`), mensajes `SKIP_WAITING`/`CLEAR_CACHES`, y el flujo de actualización que avisa sin recargar. Se ejecutan con:
+
+```bash
+npm test
+npm run verify
+bash public-tests/check.sh
+```
+
+El workflow `.github/workflows/week-03-w03-service-worker-offline.yml` hace instalación limpia, build, comprobación de artefactos obligatorios y la suite de pruebas, y publica `academic-evidence-w03-service-worker-offline`. Las pruebas no reemplazan un navegador real ni HTTPS; por eso se documenta también la verificación manual anterior.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
