@@ -35,7 +35,7 @@
 - Qué verifica y qué no verifica: Verifica registro, precaché, respaldo offline del shell y de rutas desconocidas, y que el build sigue limpio. No verifica el flujo de actualización en un navegador real (se comprobará al cambiar `CACHE_VERSION` a `v2`), ni HTTPS, ni cuota de almacenamiento. Las pruebas automatizadas `tests/service-worker.spec.ts` y `tests/offline.spec.ts` corresponden a Alejandro y prueban el mismo contrato en Node.
 - Limitación o riesgo: El indicador del encabezado depende de `navigator.onLine`: con el servidor caído pero red disponible seguía diciendo "En línea" aunque el contenido venía de caché; es una limitación conocida de esa API. El service worker solo se registra en producción porque en `next dev` los chunks no llevan hash y la caché los dejaría obsoletos. Una ruta nunca visitada solo puede mostrar `offline.html`.
 - Uso de IA: Utilicé Claude Code (Claude Fable 5.1) para diseñar el contrato entre `sw.js` y el módulo de registro, redactar `docs/cache-strategy.md` y preparar las instrucciones de pruebas para Alejandro. Validé cada archivo ejecutando `tsc`, el build, la verificación y la comprobación manual en navegador descrita arriba; puedo explicar y modificar el ciclo de vida completo.
-- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama `feat/w03-service-worker-oscar`.
+- SHA del commit de contribución: d471f93; commit en la rama `feat/w03-service-worker-oscar`.
 - SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y ejecutar la validación conjunta sobre ese commit.
 
 ## Integrante: Contreras Martinez Alejandro — 3523110460
