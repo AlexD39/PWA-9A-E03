@@ -88,6 +88,20 @@ bash public-tests/check.sh
 
 El workflow `.github/workflows/week-03-w03-service-worker-offline.yml` hace instalación limpia, build, comprobación de artefactos obligatorios y la suite de pruebas, y publica `academic-evidence-w03-service-worker-offline`. Las pruebas no reemplazan un navegador real ni HTTPS; por eso se documenta también la verificación manual anterior.
 
+### Verificación de Alejandro
+
+En Windows se ejecutaron desde la raíz del repositorio los comandos requeridos:
+
+```powershell
+npm.cmd ci
+npm.cmd test
+npm.cmd run build
+npm.cmd run verify
+node scripts/verify.mjs --structure
+```
+
+Todos terminaron con código 0. La instalación limpia agregó 28 paquetes; las pruebas `starter.spec.mjs`, `manifest.spec.ts`, `service-worker.spec.ts` y `offline.spec.ts` mostraron `PASS`; el build de Next.js 14.2.35 compiló correctamente y la verificación técnica terminó en `pass`. El workflow publica el artefacto `academic-evidence-w03-service-worker-offline`.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.

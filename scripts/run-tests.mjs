@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
 const tsc = resolve(root, "node_modules", "typescript", "bin", "tsc");
-const temporaryOutput = mkdtempSync(resolve(tmpdir(), "pwa-manifest-tests-"));
+const temporaryOutput = mkdtempSync(resolve(tmpdir(), "pwa-week03-tests-"));
 
 function run(command, args) {
   const result = spawnSync(command, args, {
@@ -24,15 +24,21 @@ try {
   run(process.execPath, [
     tsc,
     "tests/manifest.spec.ts",
+    "tests/service-worker.spec.ts",
+    "tests/offline.spec.ts",
     "--module",
     "commonjs",
     "--target",
     "es2020",
     "--outDir",
     temporaryOutput,
-    "--skipLibCheck"
+    "--skipLibCheck",
+    "--lib",
+    "es2020,dom"
   ]);
-  run(process.execPath, [resolve(temporaryOutput, "manifest.spec.js")]);
+  run(process.execPath, [resolve(temporaryOutput, "tests", "manifest.spec.js")]);
+  run(process.execPath, [resolve(temporaryOutput, "tests", "service-worker.spec.js")]);
+  run(process.execPath, [resolve(temporaryOutput, "tests", "offline.spec.js")]);
 } finally {
   rmSync(temporaryOutput, { recursive: true, force: true });
 }

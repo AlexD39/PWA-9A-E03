@@ -8,15 +8,22 @@ const required = [
   "package-lock.json",
   "README.md",
   "public/manifest.webmanifest",
+  "public/sw.js",
+  "public/offline.html",
   "src/app/layout.tsx",
   "src/app/page.tsx",
   "src/app/globals.css",
   "src/components/app-shell.tsx",
+  "src/components/service-worker-manager.tsx",
   "src/lib/data/inspections.ts",
+  "src/lib/pwa/register-service-worker.ts",
   "docs/requirements.md",
   "docs/decision-record.md",
+  "docs/cache-strategy.md",
   "tests/starter.spec.mjs",
   "tests/manifest.spec.ts",
+  "tests/service-worker.spec.ts",
+  "tests/offline.spec.ts",
   "evidence/individual.md"
 ];
 const missing = required.filter(file => !existsSync(resolve(root, file)));
@@ -38,7 +45,7 @@ const git = args => {
   const r = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   return r.status === 0 ? r.stdout.trim() : null;
 };
-const documents = ["docs/requirements.md", "docs/decision-record.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
+const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
 const gitStatus = git(["status", "--porcelain"]);
 const result = {
   schemaVersion: 2,
@@ -48,10 +55,10 @@ const result = {
   runtime: { node: process.version },
   status: checks.every(c => c.status === "pass") ? "pass" : "fail",
   checks,
-  academicReview: { status: "pending", message: "Sin calificación automática. Revisar requisitos, decisión y evidencia por integrante con la rúbrica; existencia no implica calidad.", documents },
-  limits: ["La instalación se verifica mediante npm ci por separado.", "No certifica ausencia de secretos.", "Las pruebas proporcionadas no cubren toda la aplicación."]
+  academicReview: { status: "pending", message: "Sin calificaciÃ³n automÃ¡tica. Revisar requisitos, decisiÃ³n y evidencia por integrante con la rÃºbrica; existencia no implica calidad.", documents },
+  limits: ["La instalaciÃ³n se verifica mediante npm ci por separado.", "No certifica ausencia de secretos.", "Las pruebas proporcionadas no cubren toda la aplicaciÃ³n."]
 };
 mkdirSync(resolve(root, "reports"), { recursive: true });
 writeFileSync(resolve(root, "reports/verification.json"), JSON.stringify(result, null, 2) + "\n");
-console.log(`\nVerificación técnica: ${result.status}. Revisión académica: pendiente. Reporte: reports/verification.json`);
+console.log(`\nVerificaciÃ³n tÃ©cnica: ${result.status}. RevisiÃ³n acadÃ©mica: pendiente. Reporte: reports/verification.json`);
 process.exit(result.status === "pass" ? 0 : 1);

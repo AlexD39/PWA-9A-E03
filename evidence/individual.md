@@ -60,3 +60,28 @@
 - Uso de IA: Utilicé Codex para revisar el alcance asignado, estructurar el manifest, preparar los iconos SVG, configurar la ejecución de la prueba TypeScript y contrastar los comandos de verificación. Revisé los cambios y validé personalmente los resultados registrados.
 - SHA del commit de contribución: `a3cc1232a8ba3b25e27c88ac20b50802d3d74b47` (`feat: implementar manifest y pruebas PWA de Semana 2`).
 - SHA final de entrega: pendiente; se registrará después de integrar las ramas de Alejandro y Oscar y ejecutar la validación conjunta sobre ese mismo commit.
+
+### Semana 3 — Contreras Martinez Alejandro — 3523110460
+
+- Mi contribución concreta: Incorporé `tests/service-worker.spec.ts` y `tests/offline.spec.ts`, amplié `scripts/run-tests.mjs` para compilar y ejecutar los tres specs TypeScript, y actualicé `scripts/verify.mjs` con los artefactos obligatorios de la Semana 3. También incorporé sin modificaciones el workflow `.github/workflows/week-03-w03-service-worker-offline.yml` y documenté la verificación de Alejandro en `README.md`. No modifiqué la implementación del service worker realizada por Oscar.
+- Decisión que puedo explicar y por qué: `public/sw.js` se ejecuta realmente dentro de `node:vm` con `self`, cachés, red y eventos simulados; buscar cadenas en el archivo solo demostraría que cierto texto existe, mientras que la ejecución comprueba el comportamiento de `install`, `activate`, `fetch` y `message`. El `ServiceWorkerContainer` es inyectable para probar de forma determinista primera instalación, actualizaciones y errores en Node, sin depender de `navigator` ni de un navegador disponible.
+- Comandos ejecutados: Desde la raíz del repositorio en PowerShell ejecuté `npm.cmd ci`, `npm.cmd test`, `npm.cmd run build`, `npm.cmd run verify` y `node scripts/verify.mjs --structure`. También ejecuté `public-tests/check.sh` mediante Git Bash.
+- Resultado real observado:
+
+  ```text
+  added 28 packages
+  starter.spec.mjs: PASS
+  manifest.spec.ts: PASS
+  service-worker.spec.ts: PASS
+  offline.spec.ts: PASS
+  Compiled successfully
+  Verificación técnica: pass
+  Estructura presente. No valida contenido, pruebas, build ni secretos.
+  ```
+
+  Todos los comandos terminaron con código 0. Next.js 14.2.35 generó cuatro páginas estáticas y el reporte quedó en `reports/verification.json`. Webpack mostró advertencias de caché, pero no impidieron la compilación.
+- Qué verifica y qué no verifica: Las pruebas comprueban la precaché, el fallo atómico de instalación, la limpieza de versiones propias, las estrategias network-first y cache-first, las solicitudes excluidas, los mensajes de control y el ciclo de registro y actualización. No prueban el service worker dentro de un navegador real, la instalación de la PWA, HTTPS ni todas las diferencias de las API de caché entre navegadores.
+- Limitación o riesgo: Los dobles de prueba reproducen solo la superficie de las API que utiliza el proyecto. El comando `bash` de Windows intentó iniciar WSL y fue denegado, por lo que el check público se ejecutó correctamente con `C:\Program Files\Git\bin\bash.exe`. La comprobación final del workflow todavía depende de GitHub Actions después del push.
+- Uso de IA: Utilicé Codex para revisar el contrato de la actividad, preparar los dobles de las API del service worker, detectar incompatibilidades de compilación entre el `tsconfig` general y CommonJS, y organizar la evidencia. Revisé los cambios y validé los resultados ejecutando personalmente la instalación limpia, las pruebas, el build y la verificación estructural.
+- SHA del commit de contribución: `dc467b05bd882739c6ab5d259f5c284c548b1b3e` (`test: agregar pruebas y CI de service worker - Semana 3`).
+- SHA final de entrega: pendiente; se registrará después de confirmar GitHub Actions sobre el commit entregado.
