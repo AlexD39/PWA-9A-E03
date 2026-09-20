@@ -76,6 +76,8 @@ npm run start
 
 Abre <http://localhost:3000>. En DevTools → Application → Service Workers debe aparecer `sw.js` activo y en Cache Storage la caché `inspecciones-lab-v1` con cinco entradas. Marca **Offline** y recarga: el panel sigue visible y el indicador cambia a "Sin conexión". Navega a `/no-existe` en modo offline para ver `offline.html`.
 
+Para probar la actualización segura: con `v1` activa, cambia temporalmente `CACHE_VERSION` a `v2` en `public/sw.js`, ejecuta `npm run build && npm run start` y, en la pestaña ya abierta, ejecuta `registration.update()` desde la consola. Debe aparecer "Hay una versión nueva disponible" mientras `v1` sigue activa; al pulsar **Actualizar ahora** la página recarga una vez y Cache Storage conserva solo `inspecciones-lab-v2`. Los pasos completos están en la sección 6 de `docs/cache-strategy.md`. Revierte el cambio de versión antes de hacer commit.
+
 ### Verificación automatizada
 
 Las pruebas `tests/service-worker.spec.ts` y `tests/offline.spec.ts` ejecutan `public/sw.js` y el módulo de registro en Node con globales simulados: precaché e instalación atómica, limpieza de versiones, network-first con respaldo, cache-first, exclusiones (`POST`, otro origen, `/api/`), mensajes `SKIP_WAITING`/`CLEAR_CACHES`, y el flujo de actualización que avisa sin recargar. Se ejecutan con:
