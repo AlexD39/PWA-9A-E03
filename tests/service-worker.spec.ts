@@ -226,6 +226,7 @@ async function run() {
       new Request(`${ORIGIN}/submit`, { method: "POST" }),
       new Request("https://example.com/icon.svg"),
       new Request(`${ORIGIN}/api/inspections`),
+      navigation("/api/x"),
       new Request(`${ORIGIN}/archivo.txt`)
     ];
     for (const request of ignored) {

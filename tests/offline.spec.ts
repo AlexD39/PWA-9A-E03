@@ -137,13 +137,14 @@ async function run() {
     });
     registration.emit("updatefound");
     worker.state = "installed";
+    registration.waiting = worker;
     worker.emit("statechange");
     assert.equal(updateCalls, 1, "Una instalación nueva con controlador debe anunciar la actualización");
     assert.deepEqual(messages, [], "La actualización no debe activarse automáticamente");
   }
 
   {
-    const { container, registration, worker } = createContainer({ controller: {} });
+    const { container, registration, worker, messages } = createContainer({ controller: {} });
     registration.waiting = worker;
     let updateCalls = 0;
     await sw.registerServiceWorker({
@@ -152,6 +153,7 @@ async function run() {
       onUpdateAvailable() { updateCalls++; }
     });
     assert.equal(updateCalls, 1, "Un worker que ya espera debe anunciarse inmediatamente");
+    assert.deepEqual(messages, [], "Un worker ya en espera no debe activarse sin confirmación");
   }
 
   {
@@ -182,6 +184,16 @@ async function run() {
     assert.equal(callbackCalls, 1, "controllerchange debe ejecutar el callback una sola vez");
     unsubscribe();
     assert.equal(container.count("controllerchange"), 0, "La desuscripción debe quitar el listener");
+  }
+
+  {
+    const { container } = createContainer();
+    container.removeEventListener = () => undefined;
+    let callbackCalls = 0;
+    sw.onControllerChange(() => { callbackCalls++; }, container);
+    container.emit("controllerchange");
+    container.emit("controllerchange");
+    assert.equal(callbackCalls, 1, "El callback debe ejecutarse una sola vez incluso si falla la desuscripción");
   }
 
   {
