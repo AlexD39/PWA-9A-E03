@@ -153,6 +153,8 @@ h3 { font-size: 1.1rem; margin: 18px 0 8px; }
 .filter-button, .primary-button { border: 1px solid var(--accent); cursor: pointer; font-weight: 700; padding: 0 16px; }
 .filter-button { background: var(--surface); color: var(--accent-dark); }
 .filter-button:disabled { cursor: not-allowed; opacity: .7; }
+.rendering-meta { color: var(--muted); font-family: monospace; font-size: .76rem; margin: 14px 0 0; }
+.detail-link { display: inline-flex; align-items: center; justify-content: center; margin-top: 14px; text-decoration: none; }
 .inspection-grid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .inspection-card { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 3px; box-shadow: 0 5px 14px rgba(26, 53, 80, .06); padding: 18px; }
 .card-attention { border-left-color: var(--warning); }

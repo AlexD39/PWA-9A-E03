@@ -104,6 +104,69 @@ node scripts/verify.mjs --structure
 
 Todos terminaron con código 0. La instalación limpia agregó 28 paquetes; las pruebas `starter.spec.mjs`, `manifest.spec.ts`, `service-worker.spec.ts` y `offline.spec.ts` mostraron `PASS`; el build de Next.js 14.2.35 compiló correctamente y la verificación técnica terminó en `pass`. El workflow publica el artefacto `academic-evidence-w03-service-worker-offline`.
 
+## Semana 4: renderizado CSR/SSR con estados verificables
+
+Dos rutas del mismo dominio de datos, con estrategias de renderizado distintas para
+compararlas. El detalle completo, incluida la métrica de carga medida y sus límites,
+está en `docs/rendering-decision.md`.
+
+- **`/inspecciones` (SSR):** Server Component con `dynamic = "force-dynamic"`. Los datos
+  ya están en el HTML inicial. Mientras se consultan, Next.js hace streaming del
+  contenido de `src/app/inspecciones/loading.tsx`; si la consulta falla, monta
+  `src/app/inspecciones/error.tsx`. Reproducible de forma determinista con
+  `/inspecciones?fallo=1`.
+- **`/inspecciones/[id]` (CSR):** Client Component que pide sus datos a
+  `src/app/api/inspections/[id]/route.ts` después de montar, con
+  `src/lib/rendering/fetch-inspection-client.ts` como lógica extraída y comprobable
+  (mismo patrón que `register-service-worker.ts` en la Semana 3: nunca lanza, siempre
+  resuelve `ok` / `not-found` / `error`). Carga, error con botón **Reintentar** y "no
+  encontrado" son estados de React, no archivos de convención. Reproducible con
+  `/inspecciones/<id>?fallo=1` (error simulado) o con un id inexistente (404 real).
+- **`src/components/loading-state.tsx`:** componente sin hooks, compartido por las dos
+  rutas, para que el primer render del lado del cliente coincida siempre con el del
+  servidor y no haya *hydration mismatch* (razonado con detalle en
+  `docs/rendering-decision.md`, sección 4).
+
+### Ejecución y verificación manual
+
+```bash
+npm ci
+npm run build
+npm run start
+```
+
+Abre `http://localhost:3000/inspecciones` (SSR, con los 3 registros ya en el HTML) y
+`http://localhost:3000/inspecciones/inspection-001` (CSR, con un breve estado de carga
+antes del contenido). Agrega `?fallo=1` a cualquiera de las dos para ver el estado de
+error de forma reproducible. Visita `http://localhost:3000/inspecciones/no-existe` para
+el estado "no encontrado". Revisa la consola del navegador: no debe aparecer ninguna
+advertencia de hydration.
+
+Para medir la latencia real:
+
+```bash
+curl -s -o /dev/null -w "TTFB=%{time_starttransfer}s total=%{time_total}s\n" http://localhost:3000/inspecciones
+curl -s -o /dev/null -w "TTFB=%{time_starttransfer}s total=%{time_total}s\n" http://localhost:3000/api/inspections/inspection-001
+```
+
+### Verificación automatizada
+
+`tests/rendering.spec.ts` ejecuta el Server Component de `/inspecciones` y el Route
+Handler de la API directamente en Node (con `react-dom/server` para el primero), y
+prueba `fetchInspectionClient` con un `fetch` simulado: sin necesidad de un navegador,
+cubre precaché de datos, el error determinista, los códigos 200/404/500 de la API y que
+`LoadingState` renderiza los atributos de accesibilidad esperados.
+
+```bash
+npm test
+npm run verify
+bash public-tests/check.sh
+```
+
+El workflow `.github/workflows/week-04-w04-csr-ssr.yml` hace instalación limpia, build,
+comprobación de artefactos obligatorios y la suite de pruebas, y publica
+`academic-evidence-w04-csr-ssr`.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
