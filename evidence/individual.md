@@ -38,6 +38,73 @@
 - SHA del commit de contribución: `d471f93` (`feat: service worker con precaché, fallback offline y actualización segura - Semana 3`), integrado en `main` por el PR #5.
 - SHA final de entrega: el código de la semana quedó validado en el merge `aae4b6c` del PR #6, con Actions en verde. El commit que se entrega en Classroom es el último de `main`, que solo agrega documentación y evidencia; su SHA no puede escribirse dentro de este archivo y se indica en la entrega.
 
+### Semana 4 — Espinoza Landeta Oscar — 3523110665
+
+- Mi contribución concreta: Implementé la ruta SSR `src/app/inspecciones/page.tsx` (Server
+  Component con `dynamic = "force-dynamic"`), su `src/app/inspecciones/loading.tsx` y
+  `src/app/inspecciones/error.tsx`; la ruta CSR `src/app/inspecciones/[id]/page.tsx`; el
+  Route Handler `src/app/api/inspections/[id]/route.ts`; el repositorio compartido
+  `src/lib/data/inspections-repository.ts`; la lógica extraída y comprobable
+  `src/lib/rendering/fetch-inspection-client.ts`; el componente compartido
+  `src/components/loading-state.tsx`; actualicé la navegación de `src/components/app-shell.tsx`
+  para apuntar a `/inspecciones`; y escribí `docs/rendering-decision.md` y esta sección del
+  `README.md`.
+- Decisión que puedo explicar y por qué: Asigné SSR al listado porque es la primera pantalla
+  y no debe mostrar un salto de contenido; asigné CSR al detalle porque se llega por
+  interacción y ahí vale la pena pagar una segunda petición a cambio de poder reintentar sin
+  recargar la página. Extraje `fetchInspectionClient` fuera del componente React, con
+  `fetchImpl` inyectable, siguiendo el mismo patrón que `register-service-worker.ts` de la
+  Semana 3: nunca lanza, siempre resuelve un estado (`ok`/`not-found`/`error`). Evité el
+  hydration mismatch manteniendo el primer render del componente cliente siempre igual
+  (`status: "loading"`, fijo, sin leer reloj ni `window` antes del primer `useEffect`).
+- Comando o prueba que ejecuté: `tsc --noEmit`, `npm run build`, `npm run verify`, y una
+  compilación aislada de los módulos de esta semana con `--jsx react-jsx --module commonjs
+  --target es2020 --lib es2020,dom` para validar el contrato antes de dárselo a Alejandro
+  (15 aserciones reales: repositorio, Route Handler, `fetchInspectionClient` y renderizado
+  del Server Component vía `react-dom/server`). En navegador, con `npm run build && npm run
+  start`, visité `/inspecciones`, `/inspecciones?fallo=1`,
+  `/inspecciones/inspection-002`, `/inspecciones/inspection-002?fallo=1` y
+  `/inspecciones/no-existe`, y medí la latencia con `curl -w`.
+- Resultado real observado: Las 15 aserciones del contrato pasaron. El build compiló sin
+  advertencias (`/inspecciones` y `/inspecciones/[id]` quedaron marcadas `ƒ` dinámicas,
+  `/api/inspections/[id]` como Route Handler dinámico). En navegador: SSR mostró los 3
+  registros con "Renderizado en el servidor en 359 ms"; con `?fallo=1` mostró el límite de
+  error de la ruta; CSR mostró primero "Cargando inspección en el cliente…" y luego el
+  contenido con "Renderizado en el cliente en 486 ms"; con `?fallo=1` mostró "HTTP 500" con
+  botón Reintentar; con un id inexistente mostró "No encontramos esa inspección". La consola
+  no mostró ninguna advertencia de hydration. Medí con `curl`: en `/inspecciones`,
+  `time_starttransfer` fue de apenas 0.02–0.13 s pero `time_total` de 0.38–0.46 s en tres
+  muestras, porque Next.js hace streaming del `loading.tsx` como primer byte y el contenido
+  resuelto llega después en la misma respuesta; en `/api/inspections/inspection-001`,
+  `time_starttransfer` y `time_total` coincidieron en 0.37–0.43 s porque el Route Handler no
+  hace streaming.
+- Qué verifica y qué no verifica: El contrato de 15 casos verifica comportamiento real del
+  repositorio, del Route Handler, de `fetchInspectionClient` y del HTML que produce el
+  Server Component, no solo la existencia de los archivos. No verifica el streaming visual
+  de `loading.tsx` ni la hidratación de React en un navegador real dentro de una prueba
+  automatizada; esa parte quedó cubierta por la verificación manual descrita arriba, no por
+  `tests/rendering.spec.ts` (que es responsabilidad de Alejandro).
+- Limitación o riesgo: Descubrí que Next.js redacta `error.message` de los Server Components
+  en producción (solo entrega un `digest`); mi primer borrador de `error.tsx` mostraba ese
+  mensaje directamente y en producción habría salido un texto genérico en inglés. Lo corregí
+  para usar un mensaje fijo en español y mostrar el `digest` solo como referencia técnica.
+  Documenté en `docs/rendering-decision.md` que el query param `?fallo=1` es un gancho de
+  prueba que queda accesible en producción tal como está; sería necesario retirarlo o
+  protegerlo detrás de una bandera de entorno antes de un despliegue real. El listado no
+  tiene paginación: alcanza para los 3 registros sintéticos actuales.
+- Uso de IA: Utilicé Claude Code (Claude Fable 5.1) para diseñar el contrato entre las rutas
+  SSR/CSR y sus módulos de apoyo, redactar `docs/rendering-decision.md`, validar el contrato
+  con pruebas reales antes de escribir las instrucciones para Alejandro, y verificar en
+  navegador con mediciones de `curl`. La IA detectó por sí misma, al revisar la salida real
+  del navegador en modo producción, que el mensaje de error se redactaba y no lo que yo había
+  escrito en el primer borrador; corregí el archivo a partir de esa observación. Validé cada
+  resultado ejecutando los comandos descritos arriba; puedo explicar y modificar tanto las
+  rutas como los módulos compartidos.
+- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama
+  `feat/w04-rendering-oscar`.
+- SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y
+  ejecutar la validación conjunta sobre ese commit.
+
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. Mi cambio principal está en el commit `01ea8ed`.
