@@ -152,3 +152,29 @@
 - Uso de IA: Utilicé Codex para revisar el contrato de la actividad, preparar los dobles de las API del service worker, detectar incompatibilidades de compilación entre el `tsconfig` general y CommonJS, y organizar la evidencia. Revisé los cambios y validé los resultados ejecutando personalmente la instalación limpia, las pruebas, el build y la verificación estructural.
 - SHA del commit de contribución: `dc467b05bd882739c6ab5d259f5c284c548b1b3e` (`test: agregar pruebas y CI de service worker - Semana 3`). Corrección posterior de cobertura en `a46f051` (`test: cubrir activación no confirmada y exclusiones PWA`).
 - SHA final de entrega: el código de la semana quedó validado en el merge `aae4b6c` del PR #6, con Actions en verde. El commit que se entrega en Classroom es el último de `main`, que solo agrega documentación y evidencia; su SHA no puede escribirse dentro de este archivo y se indica en la entrega.
+
+### Semana 4 — Contreras Martinez Alejandro — 3523110460
+
+- Mi contribución concreta: Incorporé `tests/rendering.spec.ts` para comprobar el repositorio de inspecciones, el Route Handler, la lógica CSR extraída, el Server Component SSR y `LoadingState`. Amplié `scripts/run-tests.mjs` con la compilación JSX `react-jsx`, la emisión de los módulos bajo prueba y la resolución de dependencias desde el directorio temporal; actualicé `scripts/verify.mjs` con los diez artefactos de Semana 4 y `docs/rendering-decision.md`; e incorporé el workflow `.github/workflows/week-04-w04-csr-ssr.yml` sin modificar su contenido.
+- Decisión que puedo explicar y por qué: `src/app/inspecciones/page.tsx` se puede invocar directamente en Node porque su exportación predeterminada es una función `async` que devuelve un elemento React. No necesita iniciar un servidor Next.js para esta prueba: se espera la función y el elemento resultante se convierte a HTML con `renderToStaticMarkup`. En cambio, no se prueba directamente `src/app/inspecciones/[id]/page.tsx` porque usa `useSearchParams` y otros hooks que requieren el contexto del App Router; su lógica de negocio se extrajo a `fetchInspectionClient`, donde puede probarse de forma determinista con `fetch` y reloj inyectables.
+- Comandos ejecutados: Desde la raíz del repositorio en PowerShell ejecuté `npm.cmd ci`, `npm.cmd test`, `npm.cmd run build`, `npm.cmd run verify` y `node scripts/verify.mjs --structure`. Ejecuté además `public-tests/check.sh` mediante `C:\Program Files\Git\bin\bash.exe`.
+- Resultado real observado:
+
+  ```text
+  added 28 packages in 40s
+  starter.spec.mjs: PASS
+  manifest.spec.ts: PASS
+  service-worker.spec.ts: PASS
+  offline.spec.ts: PASS
+  rendering.spec.ts: PASS
+  Compiled successfully
+  Verificación técnica: pass
+  Estructura presente. No valida contenido, pruebas, build ni secretos.
+  ```
+
+  Todos los comandos terminaron con código 0. Next.js 14.2.35 generó `/inspecciones`, `/inspecciones/[id]` y `/api/inspections/[id]` como rutas dinámicas. Webpack mostró advertencias al crear su caché, pero no impidieron la compilación. El reporte se generó en `reports/verification.json`.
+- Qué verifica y qué no verifica: La suite comprueba que el repositorio devuelve tres inspecciones, respeta una espera real y distingue error de ausencia; que la API responde 200, 404 y 500; que `fetchInspectionClient` construye las URL y resuelve los estados `ok`, `not-found` y `error` sin lanzar; que el Server Component produce HTML con los registros y propaga el fallo simulado; y que `LoadingState` conserva sus atributos accesibles. No comprueba el streaming visual de `loading.tsx`, la hidratación, el botón de reintento ni la navegación en un navegador real.
+- Limitación o riesgo: Los dobles de `fetch` cubren el contrato que consume la aplicación, pero no reproducen todas las condiciones de una red o navegador reales. Como los specs usan `require` de CommonJS, TypeScript no descubre esos módulos como dependencias de compilación; por eso el runner enumera explícitamente los módulos bajo prueba y define `NODE_PATH` para que el código emitido en la carpeta temporal encuentre React y Next.js. La validación de GitHub Actions seguirá pendiente hasta publicar la rama.
+- Uso de IA: Utilicé Codex para analizar las instrucciones, implementar y revisar las pruebas, diagnosticar la resolución de módulos desde el directorio temporal y organizar la evidencia. Verifiqué los resultados ejecutando personalmente la instalación limpia, la suite, el build, la verificación integral y el check público; revisé que todos terminaran con código 0.
+- SHA del commit de contribución: pendiente; se registrará después de crear el commit de la rama `feat/w04-tests-ci-alejandro`.
+- SHA final de entrega: pendiente; se registrará después de integrar las ramas y validar el commit final en GitHub Actions.
