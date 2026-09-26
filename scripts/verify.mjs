@@ -24,6 +24,16 @@ const required = [
   "tests/manifest.spec.ts",
   "tests/service-worker.spec.ts",
   "tests/offline.spec.ts",
+  "src/app/inspecciones/page.tsx",
+  "src/app/inspecciones/[id]/page.tsx",
+  "src/components/loading-state.tsx",
+  "docs/rendering-decision.md",
+  "tests/rendering.spec.ts",
+  "src/app/inspecciones/loading.tsx",
+  "src/app/inspecciones/error.tsx",
+  "src/app/api/inspections/[id]/route.ts",
+  "src/lib/data/inspections-repository.ts",
+  "src/lib/rendering/fetch-inspection-client.ts",
   "evidence/individual.md"
 ];
 const missing = required.filter(file => !existsSync(resolve(root, file)));
@@ -45,7 +55,7 @@ const git = args => {
   const r = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   return r.status === 0 ? r.stdout.trim() : null;
 };
-const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
+const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
 const gitStatus = git(["status", "--porcelain"]);
 const result = {
   schemaVersion: 2,

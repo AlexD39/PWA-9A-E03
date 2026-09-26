@@ -167,6 +167,26 @@ El workflow `.github/workflows/week-04-w04-csr-ssr.yml` hace instalación limpia
 comprobación de artefactos obligatorios y la suite de pruebas, y publica
 `academic-evidence-w04-csr-ssr`.
 
+### Verificación de Alejandro en Windows
+
+Desde la raíz del repositorio se ejecutaron estos comandos en PowerShell:
+
+```powershell
+npm.cmd ci
+npm.cmd test
+npm.cmd run build
+npm.cmd run verify
+node scripts/verify.mjs --structure
+& 'C:\Program Files\Git\bin\bash.exe' 'public-tests/check.sh'
+```
+
+La instalación limpia agregó 28 paquetes. Las cinco pruebas terminaron en `PASS`, incluido
+`rendering.spec.ts`; Next.js 14.2.35 compiló correctamente las rutas dinámicas
+`/inspecciones`, `/inspecciones/[id]` y `/api/inspections/[id]`; `npm.cmd run verify`
+terminó con `Verificación técnica: pass`; y tanto la comprobación estructural directa como
+`public-tests/check.sh` informaron `Estructura presente`. Webpack mostró advertencias al
+crear su caché, pero el build terminó con código 0.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
