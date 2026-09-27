@@ -5,12 +5,13 @@ import { spawnSync } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
 const tsc = resolve(root, "node_modules", "typescript", "bin", "tsc");
-const temporaryOutput = mkdtempSync(resolve(tmpdir(), "pwa-week03-tests-"));
+const temporaryOutput = mkdtempSync(resolve(tmpdir(), "pwa-week04-tests-"));
 
 function run(command, args) {
   const result = spawnSync(command, args, {
     cwd: root,
     encoding: "utf8",
+    env: { ...process.env, NODE_PATH: resolve(root, "node_modules") },
     stdio: "inherit"
   });
 
@@ -26,10 +27,18 @@ try {
     "tests/manifest.spec.ts",
     "tests/service-worker.spec.ts",
     "tests/offline.spec.ts",
+    "tests/rendering.spec.ts",
+    "src/lib/data/inspections-repository.ts",
+    "src/app/api/inspections/[id]/route.ts",
+    "src/lib/rendering/fetch-inspection-client.ts",
+    "src/app/inspecciones/page.tsx",
+    "src/components/loading-state.tsx",
     "--module",
     "commonjs",
     "--target",
     "es2020",
+    "--jsx",
+    "react-jsx",
     "--outDir",
     temporaryOutput,
     "--skipLibCheck",
@@ -39,6 +48,7 @@ try {
   run(process.execPath, [resolve(temporaryOutput, "tests", "manifest.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "service-worker.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "offline.spec.js")]);
+  run(process.execPath, [resolve(temporaryOutput, "tests", "rendering.spec.js")]);
 } finally {
   rmSync(temporaryOutput, { recursive: true, force: true });
 }
