@@ -77,7 +77,15 @@
   muestras, porque Next.js hace streaming del `loading.tsx` como primer byte y el contenido
   resuelto llega después en la misma respuesta; en `/api/inspections/inspection-001`,
   `time_starttransfer` y `time_total` coincidieron en 0.37–0.43 s porque el Route Handler no
-  hace streaming.
+  hace streaming. Repetí la instalación y las mediciones sobre el merge final `ccf9538`
+  (integración del PR #9 de Alejandro): `npm ci` desde cero, `npm test` (5 specs en `PASS`),
+  `npm run build`, `npm run verify` y la comprobación de estructura, todos en código 0. Las
+  tres muestras de `curl` sobre ese mismo commit dieron resultados equivalentes a los
+  anteriores. En navegador, con el servidor sirviendo ese commit, confirmé que
+  `/inspecciones?fallo=1` sigue mostrando el mensaje fijo en español con la referencia
+  técnica (no el texto redactado por Next.js), que `/inspecciones/inspection-003` mostró
+  primero el estado de carga y luego el contenido real, y que la consola no mostró ninguna
+  advertencia de hidratación.
 - Qué verifica y qué no verifica: El contrato de 15 casos verifica comportamiento real del
   repositorio, del Route Handler, de `fetchInspectionClient` y del HTML que produce el
   Server Component, no solo la existencia de los archivos. No verifica el streaming visual
@@ -100,10 +108,12 @@
   escrito en el primer borrador; corregí el archivo a partir de esa observación. Validé cada
   resultado ejecutando los comandos descritos arriba; puedo explicar y modificar tanto las
   rutas como los módulos compartidos.
-- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama
-  `feat/w04-rendering-oscar`.
-- SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y
-  ejecutar la validación conjunta sobre ese commit.
+- SHA del commit de contribución: `d51a284` (`feat: renderizado CSR/SSR con estados
+  verificables - Semana 4`), integrado en `main` por el PR #8.
+- SHA final de entrega: el código de la semana quedó validado en el merge `ccf9538` del
+  PR #9, con Actions en verde en los cuatro workflows del repositorio. El commit que se
+  entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
+  archivo y se indica en la entrega.
 
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
@@ -177,4 +187,7 @@
 - Limitación o riesgo: Los dobles de `fetch` cubren el contrato que consume la aplicación, pero no reproducen todas las condiciones de una red o navegador reales. Como los specs usan `require` de CommonJS, TypeScript no descubre esos módulos como dependencias de compilación; por eso el runner enumera explícitamente los módulos bajo prueba y define `NODE_PATH` para que el código emitido en la carpeta temporal encuentre React y Next.js. La validación de GitHub Actions seguirá pendiente hasta publicar la rama.
 - Uso de IA: Utilicé Codex para analizar las instrucciones, implementar y revisar las pruebas, diagnosticar la resolución de módulos desde el directorio temporal y organizar la evidencia. Verifiqué los resultados ejecutando personalmente la instalación limpia, la suite, el build, la verificación integral y el check público; revisé que todos terminaran con código 0.
 - SHA del commit de contribución: `11286f5482b55801e61902ba3b6a1b6b03aa2e31` (`test: agregar pruebas y CI de renderizado - Semana 4`).
-- SHA final de entrega: pendiente; se registrará después de integrar las ramas y validar el commit final en GitHub Actions.
+- SHA final de entrega: el código de la semana quedó validado en el merge `ccf9538` del
+  PR #9, con Actions en verde en los cuatro workflows del repositorio. El commit que se
+  entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
+  archivo y se indica en la entrega.
