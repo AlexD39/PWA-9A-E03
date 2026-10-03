@@ -115,6 +115,67 @@
   entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
   archivo y se indica en la entrega.
 
+### Semana 5 — Espinoza Landeta Oscar — 3523110665
+
+- Mi contribución concreta: Implementé el esquema y la validación local `src/lib/storage/schema.ts`,
+  los adaptadores `memory-storage.ts` e `indexeddb-storage.ts`, la cola de sincronización
+  `src/lib/sync/queue.ts`, la política de conflictos `conflict-policy.ts`, el transporte
+  `transport.ts`, el servidor simulado `server-store.ts` con su ruta
+  `src/app/api/sync/inspections/route.ts`, el cableado de navegador `client.ts`, la página de captura
+  `src/app/inspecciones/nueva/page.tsx` con su panel `src/components/sync-panel.tsx`, el enlace en
+  `app-shell.tsx`, `docs/sync-policy.md` y la sección de la Semana 5 del `README.md`.
+- Decisión que puedo explicar y por qué: Cada operación lleva el estado completo del registro y
+  una `idempotencyKey` que no cambia en ningún reintento; la revisión base se fija en el primer envío.
+  Así el reintento es idéntico byte a byte y el servidor puede deduplicar. Los fallos de red no
+  consumen el presupuesto de reintentos porque estar sin conexión no es un error de la operación;
+  los del servidor sí, y al agotarse la operación pasa a `failed`. Para el cierre de pestaña, la
+  operación queda `syncing` con un lease y se recupera al vencer; para las respuestas tardías, cada
+  envío lleva un identificador de lease y una respuesta con otro identificador se descarta. Los
+  conflictos se resuelven en el cliente con una fusión de tres vías por campo, con reglas explícitas:
+  `attention` gana sobre `ok`, los hallazgos toman el máximo, el cambio más reciente gana el resto y
+  el servidor gana los empates. Elegí fusionar por campo y no "gana el último" completo porque este
+  pierde cambios que no chocaban.
+- Comando o prueba que ejecuté: `tsc --noEmit` con el `tsconfig.json` estricto del proyecto y, aparte,
+  la compilación sin `--strict` con las banderas de `scripts/run-tests.mjs`; `npm run build`; una
+  batería temporal de 45 casos de comportamiento sobre la cola, la política, el servidor simulado, el
+  transporte HTTP y el almacenamiento, y otra de 10 casos sobre el manejador de la ruta (no se
+  commitean: son la base del contrato que le pasé a Alejandro para `tests/sync.spec.ts`); pruebas con
+  `curl` de la API; y una verificación manual con `npm run build && npm run start` en el navegador.
+- Resultado real observado: Las baterías dieron 45 y 10 casos en `PASS`. En el navegador: guardar sin
+  responsable fue rechazado con "inspector: obligatorio" y no creó ningún registro; un registro válido
+  quedó "Sincronizado" con una revisión en el servidor y una clave procesada. Con el servidor apagado,
+  la conexión no respondió hasta el tiempo de espera de 10 s y la operación quedó pendiente con
+  `network: Failed to fetch`, sin gastar reintentos (`failures: 0`) y con backoff creciente (+4400 ms
+  en el tercer intento). Al volver el servidor, la página abierta entregó el registro sola. Tras
+  recargar, los registros seguían en IndexedDB. Con `?perder=1` el servidor aplicó el registro de
+  "Tecnica C" pero respondió 503; después de 5 envíos con la misma clave (4 con la respuesta perdida)
+  la operación cerró como `duplicate` y el servidor conservó una sola revisión 1 y 2 claves procesadas
+  (no 6). Para el conflicto, otro dispositivo subió el registro a la revisión 2 con `attention` y 2
+  hallazgos; al editar el resumen desde la página, la política devolvió `status` y `findings` del
+  remoto y el resumen local, y el servidor quedó en la revisión 3 con los tres cambios. La consola
+  solo mostró los errores provocados a propósito (conexión rechazada, 503 y 409) y ninguna
+  advertencia de hidratación.
+- Qué verifica y qué no verifica: Las baterías y la prueba manual verifican idempotencia, reintentos,
+  recuperación tras un cierre, respuestas tardías, conflictos y persistencia real en IndexedDB. No
+  verifica el adaptador de IndexedDB de forma automatizada (no corre en Node), ni varias pestañas a la
+  vez, ni Safari, ni un backend real. `tests/sync.spec.ts` es responsabilidad de Alejandro.
+- Limitación o riesgo: Al compilar sin `--strict`, como lo hace `scripts/run-tests.mjs`, `tsc` perdía el
+  estrechamiento de los tipos `ok: true | false` y marcaba errores que el `tsc` estricto del proyecto no
+  veía; lo resolví en el tipo `ValidationResult` para que compile en ambos modos. El campo que
+  identifica el envío en curso se llamaba de una forma que habría dado falso positivo en cualquier
+  escáner de credenciales, así que lo renombré a `leaseId`. El servidor simulado vive en memoria: tras reiniciarlo, el primer registro seguía marcado
+  como sincronizado en el dispositivo pero ya no estaba en el servidor. Los ganchos `?fallo=1`,
+  `?perder=1` y `DELETE` quedan accesibles. Todo está documentado en `docs/sync-policy.md`.
+- Uso de IA: Utilicé Claude Code (Claude Sonnet 5.5) para diseñar el modelo de operaciones y las
+  garantías de la cola, escribir los módulos y `docs/sync-policy.md`, validar el contrato con las
+  baterías antes de escribir las instrucciones para Alejandro, y ejecutar la verificación en el
+  navegador integrado. Validé el resultado ejecutando los comandos descritos arriba y los escenarios
+  manuales; puedo explicar y modificar la cola, la política de conflictos y el servidor simulado.
+- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama
+  `feat/w05-sync-oscar`.
+- SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y ejecutar la
+  validación conjunta sobre ese commit.
+
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. Mi cambio principal está en el commit `01ea8ed`.
