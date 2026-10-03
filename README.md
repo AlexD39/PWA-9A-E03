@@ -187,6 +187,61 @@ terminó con `Verificación técnica: pass`; y tanto la comprobación estructura
 `public-tests/check.sh` informaron `Estructura presente`. Webpack mostró advertencias al
 crear su caché, pero el build terminó con código 0.
 
+## Semana 5: persistencia local y sincronización idempotente
+
+Las inspecciones se guardan primero en el dispositivo (IndexedDB) y se sincronizan cuando hay
+red, sin duplicar ni perder datos. La política completa, con sus límites, está en
+`docs/sync-policy.md`.
+
+- **`src/lib/storage/schema.ts`:** esquema local (`records`, `outbox`, `meta`), validación de
+  entrada y de lectura, versión del esquema e interfaz `StorageAdapter`. Dos adaptadores:
+  `memory-storage.ts` (pruebas y respaldo volátil) e `indexeddb-storage.ts` (navegador).
+- **`src/lib/sync/queue.ts`:** cola de sincronización. Guardado atómico, `idempotencyKey` fija en
+  todos los reintentos, backoff exponencial con jitter, recuperación tras cerrar la pestaña con
+  *lease*, descarte de respuestas obsoletas y bitácora de eventos. Como en las semanas anteriores,
+  todo es inyectable (almacenamiento, transporte, reloj), así que se prueba en Node sin navegador.
+- **`src/lib/sync/conflict-policy.ts`:** fusión de tres vías por campo con reglas explícitas
+  (`attention` gana, los hallazgos toman el máximo, el cambio más reciente gana el resto y el
+  servidor gana los empates). Cada decisión queda registrada con el valor descartado.
+- **Servidor simulado:** `src/lib/sync/server-store.ts` y `src/app/api/sync/inspections/route.ts`
+  deduplican por clave, detectan conflictos por revisión y validan. Es memoria del proceso: no hay
+  backend real en este proyecto.
+- **Interfaz:** `/inspecciones/nueva` (formulario y panel de estado de sincronización), con el
+  mismo cuidado de la Semana 4 para evitar *hydration mismatch*: el primer render es siempre el
+  estado de carga y todo lo demás se calcula después de montar.
+
+### Ejecución y verificación manual
+
+```bash
+npm ci
+npm run build
+npm run start
+```
+
+Abre `http://localhost:3000/inspecciones/nueva`, guarda una inspección y observa el panel. Para
+reproducir los casos difíciles: detén el servidor y guarda otra (queda pendiente y se entrega sola
+al volver); abre `/inspecciones/nueva?perder=1` para que el servidor aplique la operación pero
+"pierda" la respuesta, y recarga sin el parámetro para ver "duplicado evitado". El detalle de cada
+caso está en la sección 12 de `docs/sync-policy.md`.
+
+### Verificación automatizada
+
+`tests/sync.spec.ts` ejecuta la cola contra un almacenamiento en memoria y un servidor simulado:
+guardado atómico y sin duplicados, idempotencia con respuesta perdida, backoff y presupuesto de
+reintentos, cierre de pestaña y respuestas tardías, fusión de conflictos y comportamiento del
+transporte HTTP. Se ejecuta con:
+
+```bash
+npm test
+npm run verify
+bash public-tests/check.sh
+```
+
+El workflow `.github/workflows/week-05-w05-sync-data.yml` hace instalación limpia, build,
+comprobación de artefactos obligatorios y la suite de pruebas, y publica
+`academic-evidence-w05-sync-data`. Las pruebas no cubren el adaptador de IndexedDB, que se verifica
+a mano en un navegador real.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.

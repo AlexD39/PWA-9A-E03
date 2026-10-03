@@ -7,8 +7,8 @@ type AppShellProps = {
 
 const navigation = [
   { href: "/inspecciones", label: "Inspecciones", icon: "▣" },
-  { href: "#coming-soon", label: "Nueva", icon: "+" },
-  { href: "#coming-soon", label: "Sync", icon: "↻" },
+  { href: "/inspecciones/nueva", label: "Nueva", icon: "+" },
+  { href: "/inspecciones/nueva#sincronizacion", label: "Sync", icon: "↻" },
   { href: "#coming-soon", label: "Ajustes", icon: "⚙" }
 ];
 
