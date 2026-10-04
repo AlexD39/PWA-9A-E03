@@ -115,47 +115,6 @@
   entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
   archivo y se indica en la entrega.
 
-### Semana 5 — Contreras Martinez Alejandro — 3523110460
-
-- Mi contribución concreta: Incorporé `tests/sync.spec.ts` con 69 casos, actualicé
-  `scripts/run-tests.mjs` para compilar y ejecutar la suite junto con todos sus módulos, amplié
-  `scripts/verify.mjs` con los artefactos y el documento de sincronización, conservé el workflow
-  de Semana 5 agregado al repositorio y documenté la verificación en el `README.md`.
-- Decisión que puedo explicar y por qué: La cola se prueba con `MemoryStorage` porque cumple el
-  mismo contrato asíncrono y permite controlar de forma determinista lotes, fallos y datos
-  persistidos. Esto aísla la lógica de la cola, pero no prueba el adaptador IndexedDB real. El
-  cierre de una pestaña se simula creando una segunda cola sobre el mismo almacén: se pierde el
-  estado en memoria de la primera, pero sobreviven el registro, la operación y su lease. Para la
-  idempotencia, el servidor falso aplica una operación y después simula la pérdida de la respuesta;
-  el reintento conserva la misma clave, cuerpo y revisión base, por lo que el servidor responde
-  como duplicado sin incrementar la revisión. Los fallos de red no consumen el presupuesto porque
-  estar sin conexión no vuelve inválida la operación; los fallos del servidor sí lo consumen.
-- Comandos ejecutados: `npm.cmd ci`, `npm.cmd test`, `npm.cmd run build`, `npm.cmd run verify`,
-  `node scripts/verify.mjs --structure` y
-  `C:\Program Files\Git\bin\bash.exe public-tests/check.sh` desde la raíz del repositorio.
-- Resultado real observado: `npm.cmd ci` agregó 28 paquetes con código 0. Las suites
-  `starter`, `manifest`, `service-worker`, `offline`, `rendering` y `sync` pasaron; la última mostró
-  `sync.spec.ts: PASS (69 casos)`. Next.js 14.2.35 compiló correctamente y generó seis páginas. La
-  verificación técnica terminó en `pass`, y los dos checks estructurales informaron
-  `Estructura presente`. Las advertencias de caché de Webpack no impidieron el build.
-- Revisión por mutación: Cambié temporalmente tres condiciones y restauré cada una. Al hacer que
-  los fallos de red consumieran presupuesto falló `fallo de red no consume presupuesto`; al hacer
-  que el cambio local ganara un empate falló `el servidor gana empates`; y al quitar la comparación
-  del identificador de lease falló `descarta una respuesta tardia`. Esta última mutación ayudó a
-  fortalecer el escenario para mantener simultáneamente dos envíos con leases distintos.
-- Qué verifica y qué no verifica: La suite cubre validación y esquema, atomicidad, guardado y
-  coalescencia, sincronización, idempotencia, backoff, recuperación, respuestas obsoletas,
-  conflictos, servidor simulado, transporte HTTP, observabilidad y Route Handler. No ejecuta
-  IndexedDB real, varias pestañas reales al mismo tiempo ni un backend persistente.
-- Limitación o riesgo: El servidor de la actividad vive en memoria y sus datos se pierden al
-  reiniciarse. Los dobles de prueba reproducen el contrato usado por la cola, no todas las
-  diferencias de red y navegador. La validación final de GitHub Actions queda pendiente hasta
-  publicar la rama.
-- Uso de IA: Utilicé Codex para analizar el contrato, preparar el arnés determinista, implementar y
-  revisar los casos, ejecutar las verificaciones y fortalecer la detección de mutaciones. Revisé
-  los cambios y validé el resultado con los comandos registrados.
-- SHA final de entrega: pendiente.
-
 ### Semana 5 — Espinoza Landeta Oscar — 3523110665
 
 - Mi contribución concreta: Implementé el esquema y la validación local `src/lib/storage/schema.ts`,
@@ -195,7 +154,10 @@
   hallazgos; al editar el resumen desde la página, la política devolvió `status` y `findings` del
   remoto y el resumen local, y el servidor quedó en la revisión 3 con los tres cambios. La consola
   solo mostró los errores provocados a propósito (conexión rechazada, 503 y 409) y ninguna
-  advertencia de hidratación.
+  advertencia de hidratación. Después de integrar la rama de Alejandro repetí sobre `9e412f2`:
+  `npm ci` desde cero, `npm test` (6 specs, con `sync.spec.ts` en 69 casos), `npm run build`,
+  `npm run verify` y la estructura, todo en código 0, y revisé su suite rompiendo el código de
+  30 maneras: las detectó todas.
 - Qué verifica y qué no verifica: Las baterías y la prueba manual verifican idempotencia, reintentos,
   recuperación tras un cierre, respuestas tardías, conflictos y persistencia real en IndexedDB. No
   verifica el adaptador de IndexedDB de forma automatizada (no corre en Node), ni varias pestañas a la
@@ -212,10 +174,12 @@
   baterías antes de escribir las instrucciones para Alejandro, y ejecutar la verificación en el
   navegador integrado. Validé el resultado ejecutando los comandos descritos arriba y los escenarios
   manuales; puedo explicar y modificar la cola, la política de conflictos y el servidor simulado.
-- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama
-  `feat/w05-sync-oscar`.
-- SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y ejecutar la
-  validación conjunta sobre ese commit.
+- SHA del commit de contribución: `5383fcb` (`feat: persistencia local y sincronización idempotente - Semana 5`),
+  integrado en `main` por el PR #11.
+- SHA final de entrega: el código de la semana quedó validado en el merge `9e412f2` del
+  PR #12, con Actions en verde en los cinco workflows del repositorio. El commit que se
+  entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
+  archivo y se indica en la entrega.
 
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
@@ -291,5 +255,51 @@
 - SHA del commit de contribución: `11286f5482b55801e61902ba3b6a1b6b03aa2e31` (`test: agregar pruebas y CI de renderizado - Semana 4`).
 - SHA final de entrega: el código de la semana quedó validado en el merge `ccf9538` del
   PR #9, con Actions en verde en los cuatro workflows del repositorio. El commit que se
+  entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
+  archivo y se indica en la entrega.
+
+### Semana 5 — Contreras Martinez Alejandro — 3523110460
+
+- Mi contribución concreta: Incorporé `tests/sync.spec.ts` con 69 casos, actualicé
+  `scripts/run-tests.mjs` para compilar y ejecutar la suite junto con todos sus módulos, amplié
+  `scripts/verify.mjs` con los artefactos y el documento de sincronización, conservé el workflow
+  de Semana 5 agregado al repositorio y documenté la verificación en el `README.md`.
+- Decisión que puedo explicar y por qué: La cola se prueba con `MemoryStorage` porque cumple el
+  mismo contrato asíncrono y permite controlar de forma determinista lotes, fallos y datos
+  persistidos. Esto aísla la lógica de la cola, pero no prueba el adaptador IndexedDB real. El
+  cierre de una pestaña se simula creando una segunda cola sobre el mismo almacén: se pierde el
+  estado en memoria de la primera, pero sobreviven el registro, la operación y su lease. Para la
+  idempotencia, el servidor falso aplica una operación y después simula la pérdida de la respuesta;
+  el reintento conserva la misma clave, cuerpo y revisión base, por lo que el servidor responde
+  como duplicado sin incrementar la revisión. Los fallos de red no consumen el presupuesto porque
+  estar sin conexión no vuelve inválida la operación; los fallos del servidor sí lo consumen.
+- Comandos ejecutados: `npm.cmd ci`, `npm.cmd test`, `npm.cmd run build`, `npm.cmd run verify`,
+  `node scripts/verify.mjs --structure` y
+  `C:\Program Files\Git\bin\bash.exe public-tests/check.sh` desde la raíz del repositorio.
+- Resultado real observado: `npm.cmd ci` agregó 28 paquetes con código 0. Las suites
+  `starter`, `manifest`, `service-worker`, `offline`, `rendering` y `sync` pasaron; la última mostró
+  `sync.spec.ts: PASS (69 casos)`. Next.js 14.2.35 compiló correctamente y generó seis páginas. La
+  verificación técnica terminó en `pass`, y los dos checks estructurales informaron
+  `Estructura presente`. Las advertencias de caché de Webpack no impidieron el build.
+- Revisión por mutación: Cambié temporalmente tres condiciones y restauré cada una. Al hacer que
+  los fallos de red consumieran presupuesto falló `fallo de red no consume presupuesto`; al hacer
+  que el cambio local ganara un empate falló `el servidor gana empates`; y al quitar la comparación
+  del identificador de lease falló `descarta una respuesta tardia`. Esta última mutación ayudó a
+  fortalecer el escenario para mantener simultáneamente dos envíos con leases distintos.
+- Qué verifica y qué no verifica: La suite cubre validación y esquema, atomicidad, guardado y
+  coalescencia, sincronización, idempotencia, backoff, recuperación, respuestas obsoletas,
+  conflictos, servidor simulado, transporte HTTP, observabilidad y Route Handler. No ejecuta
+  IndexedDB real, varias pestañas reales al mismo tiempo ni un backend persistente.
+- Limitación o riesgo: El servidor de la actividad vive en memoria y sus datos se pierden al
+  reiniciarse. Los dobles de prueba reproducen el contrato usado por la cola, no todas las
+  diferencias de red y navegador. La validación final de GitHub Actions queda pendiente hasta
+  publicar la rama. Nota del cierre: ya se publicó y los cinco workflows terminaron en verde
+  sobre el merge `9e412f2`.
+- Uso de IA: Utilicé Codex para analizar el contrato, preparar el arnés determinista, implementar y
+  revisar los casos, ejecutar las verificaciones y fortalecer la detección de mutaciones. Revisé
+  los cambios y validé el resultado con los comandos registrados.
+- SHA del commit de contribución: `a934c77` (`test: agregar pruebas y CI de sincronizacion - Semana 5`), integrado en `main` por el PR #12.
+- SHA final de entrega: el código de la semana quedó validado en el merge `9e412f2` del
+  PR #12, con Actions en verde en los cinco workflows del repositorio. El commit que se
   entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
   archivo y se indica en la entrega.
