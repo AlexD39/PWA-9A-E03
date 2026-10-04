@@ -242,6 +242,26 @@ comprobación de artefactos obligatorios y la suite de pruebas, y publica
 `academic-evidence-w05-sync-data`. Las pruebas no cubren el adaptador de IndexedDB, que se verifica
 a mano en un navegador real.
 
+### Verificación de Alejandro en Windows
+
+Desde la raíz del repositorio ejecuté los comandos solicitados en PowerShell y Git Bash:
+
+```text
+npm.cmd ci
+npm.cmd test
+npm.cmd run build
+npm.cmd run verify
+node scripts/verify.mjs --structure
+C:\Program Files\Git\bin\bash.exe public-tests/check.sh
+```
+
+La instalación limpia agregó 28 paquetes y terminó con código 0. Las seis suites pasaron;
+`sync.spec.ts` informó `PASS (69 casos)`. El build de Next.js 14.2.35 compiló correctamente y
+generó seis páginas, incluidas `/api/sync/inspections` y `/inspecciones/nueva`. La verificación
+integral terminó en `pass`, y tanto la comprobación estructural como el check público informaron
+`Estructura presente`. Webpack mostró advertencias al crear su caché, pero el proceso terminó con
+código 0.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
