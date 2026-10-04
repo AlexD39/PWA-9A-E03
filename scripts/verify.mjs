@@ -34,6 +34,19 @@ const required = [
   "src/app/api/inspections/[id]/route.ts",
   "src/lib/data/inspections-repository.ts",
   "src/lib/rendering/fetch-inspection-client.ts",
+  "src/lib/sync/queue.ts",
+  "src/lib/storage/schema.ts",
+  "src/lib/sync/conflict-policy.ts",
+  "docs/sync-policy.md",
+  "tests/sync.spec.ts",
+  "src/lib/storage/memory-storage.ts",
+  "src/lib/storage/indexeddb-storage.ts",
+  "src/lib/sync/transport.ts",
+  "src/lib/sync/server-store.ts",
+  "src/lib/sync/client.ts",
+  "src/app/api/sync/inspections/route.ts",
+  "src/components/sync-panel.tsx",
+  "src/app/inspecciones/nueva/page.tsx",
   "evidence/individual.md"
 ];
 const missing = required.filter(file => !existsSync(resolve(root, file)));
@@ -55,7 +68,7 @@ const git = args => {
   const r = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   return r.status === 0 ? r.stdout.trim() : null;
 };
-const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
+const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "docs/sync-policy.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
 const gitStatus = git(["status", "--porcelain"]);
 const result = {
   schemaVersion: 2,

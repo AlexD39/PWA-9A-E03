@@ -28,11 +28,19 @@ try {
     "tests/service-worker.spec.ts",
     "tests/offline.spec.ts",
     "tests/rendering.spec.ts",
+    "tests/sync.spec.ts",
     "src/lib/data/inspections-repository.ts",
     "src/app/api/inspections/[id]/route.ts",
     "src/lib/rendering/fetch-inspection-client.ts",
     "src/app/inspecciones/page.tsx",
     "src/components/loading-state.tsx",
+    "src/lib/storage/schema.ts",
+    "src/lib/storage/memory-storage.ts",
+    "src/lib/sync/queue.ts",
+    "src/lib/sync/conflict-policy.ts",
+    "src/lib/sync/server-store.ts",
+    "src/lib/sync/transport.ts",
+    "src/app/api/sync/inspections/route.ts",
     "--module",
     "commonjs",
     "--target",
@@ -49,6 +57,7 @@ try {
   run(process.execPath, [resolve(temporaryOutput, "tests", "service-worker.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "offline.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "rendering.spec.js")]);
+  run(process.execPath, [resolve(temporaryOutput, "tests", "sync.spec.js")]);
 } finally {
   rmSync(temporaryOutput, { recursive: true, force: true });
 }
