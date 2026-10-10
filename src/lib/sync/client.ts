@@ -13,12 +13,14 @@
 
 import { createIndexedDbStorage, isIndexedDbAvailable } from "../storage/indexeddb-storage";
 import { createMemoryStorage } from "../storage/memory-storage";
-import { ensureSchema } from "../storage/schema";
+import { ensureSchema, type StorageAdapter } from "../storage/schema";
 import { createSyncQueue, type SyncQueue } from "./queue";
 import { createHttpTransport } from "./transport";
 
 export interface SyncRuntime {
   queue: SyncQueue;
+  /** Almacén local compartido: la evidencia de la Semana 6 se guarda aquí, en `meta`. */
+  storage: StorageAdapter;
   /** `false` si se usa memoria volátil: los datos no sobreviven a cerrar la pestaña. */
   persistent: boolean;
   /** Mensaje si el esquema local es incompatible; la captura no debe usarse en ese caso. */
@@ -54,7 +56,7 @@ async function createRuntime(): Promise<SyncRuntime> {
     transport: createHttpTransport({ query: forwardedQuery() })
   });
   if (schemaError === null) await queue.recover({ force: true });
-  return { queue, persistent, schemaError };
+  return { queue, storage, persistent, schemaError };
 }
 
 export function getSyncRuntime(): Promise<SyncRuntime> {

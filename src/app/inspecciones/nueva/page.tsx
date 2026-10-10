@@ -18,7 +18,10 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { AppShell } from "../../../components/app-shell";
 import { LoadingState } from "../../../components/loading-state";
+import { EMPTY_EVIDENCE, EvidencePanel, type DraftEvidence } from "../../../components/evidence-panel";
+import { NotificationPanel } from "../../../components/notification-panel";
 import { SyncPanel } from "../../../components/sync-panel";
+import { loadEvidence, saveEvidence } from "../../../lib/device/evidence";
 import { inspections } from "../../../lib/data/inspections";
 import { getSyncRuntime, startAutoSync, type SyncRuntime } from "../../../lib/sync/client";
 import { LIMITS, type InspectionStatus, type LocalRecord } from "../../../lib/storage/schema";
@@ -62,6 +65,7 @@ export default function NuevaInspeccionPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [evidence, setEvidence] = useState<DraftEvidence>(EMPTY_EVIDENCE);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,12 +108,19 @@ export default function NuevaInspeccionPage() {
     setErrors([]);
     setEditing(true);
     setNotice(`Editando el registro ${record.id}. Al guardar se actualiza el mismo registro.`);
-  }, []);
+    setEvidence(EMPTY_EVIDENCE);
+    if (runtime) {
+      void loadEvidence(runtime.storage, record.id).then((stored) => {
+        if (stored) setEvidence({ photo: stored.photo, location: stored.location });
+      });
+    }
+  }, [runtime]);
 
   const resetForm = useCallback(() => {
     setDraftId(newDraftId());
     setForm(emptyForm());
     setEditing(false);
+    setEvidence(EMPTY_EVIDENCE);
   }, []);
 
   if (!runtime || !form || !draftId) {
@@ -138,10 +149,23 @@ export default function NuevaInspeccionPage() {
         setNotice(null);
         return;
       }
+      let evidenceNote = "";
+      if (editing || evidence.photo || evidence.location) {
+        const saved = await saveEvidence(runtime.storage, result.record.id, {
+          photo: evidence.photo,
+          location: evidence.location
+        });
+        if (saved.status !== "ok") {
+          evidenceNote = " La evidencia no se pudo guardar; la inspección sí.";
+        } else if (saved.evidence) {
+          evidenceNote = " La evidencia se guardó solo en este dispositivo.";
+        }
+      }
       setNotice(
-        result.unchanged
+        (result.unchanged
           ? "No hubo cambios: no se creó otra operación."
-          : `Guardado en este dispositivo (${result.record.id}). Se sincronizará cuando haya conexión.`
+          : `Guardado en este dispositivo (${result.record.id}). Se sincronizará cuando haya conexión.`) +
+          evidenceNote
       );
       void runtime.queue.flush();
       resetForm();
@@ -249,6 +273,8 @@ export default function NuevaInspeccionPage() {
               </div>
             </div>
 
+            <EvidencePanel value={evidence} onChange={setEvidence} disabled={saving} />
+
             {errors.length > 0 ? (
               <ul className="form-errors" role="alert">
                 {errors.map((message) => (
@@ -281,6 +307,8 @@ export default function NuevaInspeccionPage() {
             </div>
           </form>
         )}
+
+        {blocked ? null : <NotificationPanel queue={runtime.queue} />}
 
         {blocked ? null : (
           <SyncPanel queue={runtime.queue} persistent={runtime.persistent} onEdit={loadForEdit} />

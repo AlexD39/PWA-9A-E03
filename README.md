@@ -262,6 +262,62 @@ integral terminó en `pass`, y tanto la comprobación estructural como el check 
 `Estructura presente`. Webpack mostró advertencias al crear su caché, pero el proceso terminó con
 código 0.
 
+## Semana 6: capacidades del dispositivo y notificaciones
+
+Se puede adjuntar evidencia opcional a una inspección (una foto y una ubicación aproximada) y la
+aplicación avisa de los cambios de sincronización, con permisos mínimos, fallback funcional y datos
+mínimos. El detalle, con sus límites, está en `docs/capabilities.md`.
+
+- **`src/lib/device/camera.ts`:** foto por la cámara del navegador (sin audio, y las pistas se
+  detienen siempre) o por archivo, sin permisos. La imagen se redibuja, se reduce a 1024 px y a
+  250 KB como máximo y se recodifica como JPEG, con lo que pierde los metadatos del original.
+- **`src/lib/device/geolocation.ts`:** una sola lectura de baja precisión, con coordenadas
+  redondeadas a unos 110 m y tiempo de espera propio. Sin seguimiento continuo.
+- **`src/lib/device/evidence.ts`:** guarda la evidencia en IndexedDB (`meta`), solo en el
+  dispositivo y sin tocar lo que se sincroniza. Si no queda nada, borra la clave.
+- **`src/lib/notifications/client.ts`:** avisos de sincronizado, conflicto y fallo. Salen por el
+  sistema solo con permiso y con la aplicación en segundo plano; en cualquier otro caso se muestran
+  dentro de la aplicación. Nunca pide permiso por su cuenta y el texto no incluye datos personales.
+- **`public/sw.js`:** manejador de `notificationclick` que enfoca o abre la aplicación y solo acepta
+  rutas del propio sitio.
+- **`next.config.mjs`:** cabecera `Permissions-Policy` (cámara y ubicación solo para este origen;
+  micrófono y pagos deshabilitados).
+- **Interfaz:** los paneles "Evidencia opcional" y "Avisos de cambios" en `/inspecciones/nueva`.
+
+### Ejecución y verificación manual
+
+```bash
+npm ci
+npm run build
+npm run start
+```
+
+Abre `http://localhost:3000/inspecciones/nueva`. Ningún permiso se pide al cargar: solo al pulsar
+"Tomar foto", "Agregar ubicación aproximada" o "Activar avisos del sistema". Con la cámara o la
+ubicación bloqueadas verás un mensaje claro y la inspección se guarda igual. Con una imagen grande
+adjuntada por archivo, la vista previa muestra como máximo 1024 px y menos de 250 KB. Revisa la
+cabecera con `curl -I http://localhost:3000/inspecciones/nueva`. Los pasos completos están en la
+sección 9 de `docs/capabilities.md`.
+
+### Verificación automatizada
+
+`tests/capabilities.spec.ts` ejecuta cada capacidad con dependencias simuladas: la foto (reducción
+de tamaño, presupuesto de bytes, errores de permiso y de hardware, y que la cámara siempre se
+libera), la ubicación (redondeo, tiempo de espera, errores y respuestas inválidas), la evidencia
+(validación y borrado de lo vacío), las notificaciones (decisión de canal, deduplicación y que
+nunca pide permiso por sí sola) y el clic en la notificación dentro de `public/sw.js`.
+
+```bash
+npm test
+npm run verify
+bash public-tests/check.sh
+```
+
+El workflow `.github/workflows/week-06-w06-device-push.yml` hace instalación limpia, build,
+comprobación de artefactos obligatorios y la suite de pruebas, y publica
+`academic-evidence-w06-device-push`. Las pruebas no ejercitan hardware real ni la entrega real de
+una notificación del sistema; eso se verifica a mano.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
