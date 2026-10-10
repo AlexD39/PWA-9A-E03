@@ -196,3 +196,30 @@ self.addEventListener("message", function (event) {
     reply(event, { type: "VERSION", version: CACHE_VERSION, cacheName: CACHE_NAME });
   }
 });
+
+/* ---------- notificationclick: abrir o enfocar la app (Semana 6) ---------- */
+
+var DEFAULT_NOTIFICATION_URL = "/inspecciones/nueva#sincronizacion";
+
+// Solo se acepta una ruta del propio sitio ("/algo", nunca "//host" ni un esquema).
+function safeNotificationUrl(data) {
+  var url = data && typeof data.url === "string" ? data.url : "";
+  if (url.charAt(0) === "/" && url.charAt(1) !== "/") return url;
+  return DEFAULT_NOTIFICATION_URL;
+}
+
+self.addEventListener("notificationclick", function (event) {
+  event.notification.close();
+  var target = safeNotificationUrl(event.notification.data);
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (windows) {
+      for (var i = 0; i < windows.length; i += 1) {
+        var client = windows[i];
+        if (client.url.indexOf(self.location.origin) === 0 && typeof client.focus === "function") {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(target);
+    })
+  );
+});

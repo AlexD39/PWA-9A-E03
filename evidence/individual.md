@@ -181,6 +181,66 @@
   entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
   archivo y se indica en la entrega.
 
+### Semana 6 — Espinoza Landeta Oscar — 3523110665
+
+- Mi contribución concreta: Implementé la captura de foto `src/lib/device/camera.ts`, la ubicación
+  `src/lib/device/geolocation.ts`, el almacenamiento de la evidencia `src/lib/device/evidence.ts`, el
+  cliente de avisos `src/lib/notifications/client.ts`, los paneles `src/components/evidence-panel.tsx` y
+  `src/components/notification-panel.tsx`, su integración en `src/app/inspecciones/nueva/page.tsx`, el
+  manejador de `notificationclick` en `public/sw.js`, la cabecera `Permissions-Policy` en
+  `next.config.mjs`, `docs/capabilities.md` y la sección de la Semana 6 del `README.md`.
+- Decisión que puedo explicar y por qué: Ningún permiso se pide al cargar la página; cada uno se pide
+  al pulsar su botón, y sin permiso, sin API o sin hardware se explica el motivo y la inspección se
+  guarda igual. Recolecto lo mínimo: la foto se redibuja en un lienzo, se reduce a 1024 px y a 250 KB y
+  se recodifica como JPEG, con lo que pierde los metadatos del original; la ubicación es una sola
+  lectura de baja precisión redondeada a 3 decimales (unos 110 m), y declaro una incertidumbre que
+  nunca es menor que la del redondeo. Las pistas de la cámara se detienen siempre, incluso si falla algo.
+  La evidencia se guarda en `meta` y no se sincroniza, para no tocar el esquema ni la cola de la
+  Semana 5 y porque subir adjuntos exigiría un servicio de archivos que no existe. Para los avisos
+  no uso push de servidor, porque exigiría claves, que son credenciales: avisa por el sistema solo con
+  permiso y con la aplicación en segundo plano, y en cualquier otro caso dentro de la aplicación; el
+  texto no incluye datos de la inspección.
+- Comando o prueba que ejecuté: `tsc --noEmit` estricto y la compilación sin `--strict` con las
+  banderas de `scripts/run-tests.mjs`; `npm run build`; `npm test` (las 6 suites anteriores siguen en
+  verde con el cambio a `public/sw.js`); una batería temporal de 35 casos de comportamiento sobre cámara,
+  ubicación, evidencia, avisos y el clic en la notificación dentro de `sw.js`, que no se commitea y es la
+  base del contrato que le pasé a Alejandro para `tests/capabilities.spec.ts`; `curl -I` para la
+  cabecera; y una verificación manual con `npm run build && npm run start` en el navegador.
+- Resultado real observado: La batería dio 35 casos en `PASS`. La cabecera
+  `Permissions-Policy: camera=(self), geolocation=(self), microphone=(), payment=()` llega en las
+  páginas, la API y `sw.js`. En el navegador, al cargar la página no apareció ningún aviso de permiso.
+  Ese navegador tenía la ubicación y las notificaciones denegadas y la cámara bloqueada, así que
+  comprobé los fallbacks con las APIs reales: "Tomar foto" mostró "No hay permiso para usar la cámara…
+  Puedes elegir una imagen" y "Agregar ubicación aproximada" mostró "No hay permiso de ubicación…
+  es opcional", y el formulario siguió usable. Con una imagen sintética PNG de 3000×2000 y 1 682 823
+  bytes adjuntada por archivo, el procesamiento real del navegador la dejó en JPEG de 1024×683 y
+  178 431 bytes. Al guardar, apareció la clave `evidence:<id>` en `meta` y el servidor no recibió nada de
+  la evidencia. Como el permiso de notificaciones estaba denegado, el aviso "Inspección sincronizada"
+  apareció dentro de la aplicación, y "Probar aviso" cayó al aviso interno. Tras recargar y pulsar
+  "Editar", la foto se recuperó; al quitarla, la clave se borró.
+- Qué verifica y qué no verifica: Verifica los caminos de permiso denegado y de falta de API con las
+  APIs reales del navegador, el procesamiento real de la imagen, la persistencia y el borrado de lo
+  vacío, y la lógica de decisión de avisos con dependencias simuladas. No verifica una captura con
+  cámara real ni una notificación del sistema con el permiso concedido, porque el navegador de prueba
+  las bloquea y yo no puedo conceder permisos por la persona usuaria; esa parte queda para una
+  comprobación manual en un navegador de escritorio o móvil, con los pasos de la sección 9 de
+  `docs/capabilities.md`. `tests/capabilities.spec.ts` es responsabilidad de Alejandro.
+- Limitación o riesgo: Me volvió a pasar lo de la semana 5: al compilar sin `--strict`, `tsc` perdía el
+  estrechamiento de los tipos `ok: true | false` en tres funciones; lo corregí con el mismo patrón. La
+  cámara no tiene vista previa en vivo (se toma un fotograma tras unos 600 ms); la vía de archivo con
+  `capture` en móvil abre la cámara del sistema. La evidencia vive en IndexedDB sin cifrar. El clic en
+  una notificación enfoca la ventana abierta pero no navega a otra ruta. La
+  `Permissions-Policy` no controla las notificaciones. Todo está documentado en `docs/capabilities.md`.
+- Uso de IA: Utilicé Claude Code (Claude Sonnet 5.5) para diseñar las capacidades y sus fallbacks,
+  escribir los módulos y `docs/capabilities.md`, validar el contrato con la batería antes de escribir
+  las instrucciones para Alejandro, y ejecutar la verificación en el navegador integrado. Validé el
+  resultado ejecutando los comandos y los escenarios descritos arriba; puedo explicar y modificar
+  cada módulo.
+- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama
+  `feat/w06-capacidades-oscar`.
+- SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y ejecutar la
+  validación conjunta sobre ese commit.
+
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. Mi cambio principal está en el commit `01ea8ed`.
