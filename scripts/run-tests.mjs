@@ -29,6 +29,7 @@ try {
     "tests/offline.spec.ts",
     "tests/rendering.spec.ts",
     "tests/sync.spec.ts",
+    "tests/capabilities.spec.ts",
     "src/lib/data/inspections-repository.ts",
     "src/app/api/inspections/[id]/route.ts",
     "src/lib/rendering/fetch-inspection-client.ts",
@@ -41,6 +42,10 @@ try {
     "src/lib/sync/server-store.ts",
     "src/lib/sync/transport.ts",
     "src/app/api/sync/inspections/route.ts",
+    "src/lib/device/camera.ts",
+    "src/lib/device/geolocation.ts",
+    "src/lib/device/evidence.ts",
+    "src/lib/notifications/client.ts",
     "--module",
     "commonjs",
     "--target",
@@ -58,6 +63,7 @@ try {
   run(process.execPath, [resolve(temporaryOutput, "tests", "offline.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "rendering.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "sync.spec.js")]);
+  run(process.execPath, [resolve(temporaryOutput, "tests", "capabilities.spec.js")]);
 } finally {
   rmSync(temporaryOutput, { recursive: true, force: true });
 }
