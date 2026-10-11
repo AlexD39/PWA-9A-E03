@@ -363,3 +363,56 @@
   PR #12, con Actions en verde en los cinco workflows del repositorio. El commit que se
   entrega en Classroom es el último de `main`; su SHA no puede escribirse dentro de este
   archivo y se indica en la entrega.
+
+### Semana 6 — Contreras Martinez Alejandro — 3523110460
+
+- Mi contribución concreta: Incorporé `tests/capabilities.spec.ts` con 47 casos para cámara,
+  ubicación aproximada, almacenamiento local de evidencia, avisos de sincronización y clic en
+  notificaciones. Actualicé `scripts/run-tests.mjs` para compilar y ejecutar la suite junto con sus
+  cuatro módulos, amplié `scripts/verify.mjs` con los artefactos y `docs/capabilities.md`, conservé
+  sin modificaciones el workflow de Semana 6 agregado al repositorio y documenté los resultados
+  en el `README.md`.
+- Casos propios agregados: Probé que dos capturas seguidas detienen cuatro pistas; que
+  `shrinkToBudget` reduce dimensiones con un presupuesto de 5000 bytes; que `saveEvidence` usa
+  exactamente el reloj inyectado; que `dedupeWindowMs: 0` permite dos avisos iguales; y que, si
+  `getRegistration` devuelve `null`, el aviso usa el constructor disponible.
+- Decisiones que puedo explicar: Las capacidades se prueban con dependencias simuladas para
+  controlar permisos, errores, tiempo y respuestas de forma determinista, sin depender del equipo
+  donde se ejecuta CI. Esto no demuestra una captura con cámara real ni una notificación real del
+  sistema con permiso concedido. El caso de `notificationclick` ejecuta `public/sw.js` dentro de
+  `node:vm`, porque así comprueba el manejador real con `self`, clientes y eventos simulados en vez
+  de limitarse a buscar texto. La cámara siempre se libera para apagar su indicador y evitar que
+  permanezca activa después de una captura o un error. El notificador nunca pide permiso por sí
+  solo: esa decisión debe comenzar con una acción explícita de la persona usuaria y, mientras no
+  exista autorización, se usa un aviso dentro de la aplicación.
+- Comandos ejecutados: Desde la raíz del repositorio en PowerShell ejecuté `npm.cmd ci`,
+  `npm.cmd test`, `npm.cmd run build`, `npm.cmd run verify` y
+  `node scripts/verify.mjs --structure`. También ejecuté el check público con
+  `& 'C:\Program Files\Git\bin\bash.exe' public-tests/check.sh`.
+- Resultado real observado: `npm.cmd ci` agregó 28 paquetes con código 0. Las siete suites pasaron;
+  las dos suites con contador informaron `sync.spec.ts: PASS (69 casos)` y
+  `capabilities.spec.ts: PASS (47 casos)`. Next.js 14.2.35 compiló correctamente y generó seis
+  páginas. `npm.cmd run verify` terminó con `Verificación técnica: pass`, y las comprobaciones
+  estructurales directa y mediante Git Bash informaron `Estructura presente`. Webpack mostró
+  advertencias de caché durante los builds, pero los procesos terminaron con código 0.
+- Revisión por mutación: Cambié temporalmente `audio: false` por `audio: true` y falló
+  `capturePhoto pide video ambiental sin audio`; quité la condición que conserva una decisión de
+  permiso existente y falló `requestPermission no vuelve a pedir una decisión existente`; y
+  permití temporalmente cualquier URL no vacía en `public/sw.js`, lo que hizo fallar
+  `notificationclick rechaza destinos externos`. Restauré cada cambio antes del siguiente y la
+  ejecución final volvió a mostrar `capabilities.spec.ts: PASS (47 casos)`.
+- Qué verifica y qué no verifica: La suite cubre límites de foto, liberación de pistas, fallos de
+  cámara, archivo alternativo, redondeo y espera de ubicación, validación y borrado de evidencia,
+  selección de canal, deduplicación, fallback y seguridad de rutas del service worker. No utiliza
+  hardware real, no ejecuta IndexedDB en un navegador y no observa una notificación real del
+  sistema. La verificación manual recomendada en la sección 9 de `docs/capabilities.md` queda
+  pendiente.
+- Limitación o riesgo: Los dobles reproducen únicamente la superficie utilizada por la aplicación;
+  las diferencias entre dispositivos y navegadores deben comprobarse manualmente. GitHub Actions
+  también queda pendiente hasta publicar la rama y abrir el PR.
+- Uso de IA: Utilicé Codex para analizar el contrato, preparar los dobles deterministas, implementar
+  y revisar los casos, ejecutar las verificaciones y documentar los resultados. Revisé los cambios
+  y confirmé personalmente cada salida registrada.
+- SHA del commit de contribución: `656a811278f25d502a6094a2cfa018f78dbf931d`
+  (`test: agregar pruebas y CI de capacidades - Semana 6`).
+- SHA final de entrega: pendiente.

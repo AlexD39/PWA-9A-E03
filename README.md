@@ -318,6 +318,35 @@ comprobación de artefactos obligatorios y la suite de pruebas, y publica
 `academic-evidence-w06-device-push`. Las pruebas no ejercitan hardware real ni la entrega real de
 una notificación del sistema; eso se verifica a mano.
 
+### Verificación de Alejandro en Windows
+
+Desde la raíz del repositorio se ejecutaron estos comandos:
+
+```powershell
+npm.cmd ci
+npm.cmd test
+npm.cmd run build
+npm.cmd run verify
+node scripts/verify.mjs --structure
+& 'C:\Program Files\Git\bin\bash.exe' public-tests/check.sh
+```
+
+Todos terminaron con código 0. La instalación limpia agregó 28 paquetes; las siete suites pasaron,
+incluidas `sync.spec.ts: PASS (69 casos)` y `capabilities.spec.ts: PASS (47 casos)`. Next.js 14.2.35
+compiló correctamente y generó seis páginas. La verificación integral informó
+`Verificación técnica: pass`, y tanto la comprobación directa como el check público mediante Git
+Bash informaron `Estructura presente`. Webpack mostró advertencias al crear su caché durante los
+builds, pero no impidieron la compilación.
+
+La revisión por mutación detectó los tres cambios temporales requeridos: pedir audio hizo fallar
+`capturePhoto pide video ambiental sin audio`; volver a solicitar una decisión existente hizo
+fallar `requestPermission no vuelve a pedir una decisión existente`; y aceptar una URL externa en
+el service worker hizo fallar `notificationclick rechaza destinos externos`. Cada cambio se
+restauró antes de continuar y la ejecución final de `npm.cmd test` volvió a quedar en verde.
+
+La comprobación manual de cámara, ubicación y notificación real del sistema queda pendiente en un
+navegador de escritorio; no forma parte de lo demostrado por las dependencias simuladas.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
