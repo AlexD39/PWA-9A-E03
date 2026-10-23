@@ -6,4 +6,9 @@ coverage/
 .env*
 !.env.example
 reports/verification.json
+reports/junit-*.xml
+reports/e2e-results.json
+.test-build/
+test-results/
+playwright-report/
 
