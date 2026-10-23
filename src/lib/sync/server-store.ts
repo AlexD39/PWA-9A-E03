@@ -50,9 +50,6 @@ export function applyOperation(store: ServerStore, input: unknown): ApplyResult 
   if (!validation.ok) return { kind: "rejected", errors: validation.errors };
   const op: WireOperation = validation.value;
 
-  const previous = store.processed[op.idempotencyKey];
-  if (previous) return { kind: "duplicate", record: copyRecord(previous) };
-
   const existing = store.records[op.recordId];
 
   if (!existing) {
@@ -77,12 +74,6 @@ export function applyOperation(store: ServerStore, input: unknown): ApplyResult 
     store.records[op.recordId] = updated;
     store.processed[op.idempotencyKey] = copyRecord(updated);
     return { kind: "applied", record: copyRecord(updated) };
-  }
-
-  if (fieldsEqual(existing.fields, op.fields)) {
-    // Mismo contenido bajo otra clave: ya está aplicado, no se crea otra revisión.
-    store.processed[op.idempotencyKey] = copyRecord(existing);
-    return { kind: "duplicate", record: copyRecord(existing) };
   }
 
   return { kind: "conflict", remote: copyRecord(existing) };
