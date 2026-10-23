@@ -24,7 +24,7 @@
 - Limitación o riesgo: El navbar inferior es visible al final del contenido en escritorio; se resolvió con `position: fixed`. La navegación a "Nueva", "Sync" y "Ajustes" muestra un mensaje informativo porque esas funciones corresponden a semanas posteriores. El banner de instalación PWA es informativo hasta que el manifest esté activo en producción.
 - Uso de IA: Utilicé opencode para diseñar la estructura del AppShell, proponer los estilos responsive, validar los estados de UI y revisar la accesibilidad. Verifiqué manualmente cada cambio antes de commitearlo.
 - SHA del commit de contribución: `a99ce35` (`fix: navbar fijo en parte inferior para movil y escritorio`).
-- SHA final de entrega: pendiente; se registrará después de ejecutar la validación conjunta sobre el commit final de la rama.
+- SHA final de entrega: el código de la semana quedó validado en el merge `94ede81f748e15efb726758c9e7213add76290c4` del PR #4 (`feat/w02-oel-shell`), que dejó en `main` las ramas de ambos integrantes.
 
 ### Semana 3 — Espinoza Landeta Oscar — 3523110665
 
@@ -236,10 +236,65 @@
   las instrucciones para Alejandro, y ejecutar la verificación en el navegador integrado. Validé el
   resultado ejecutando los comandos y los escenarios descritos arriba; puedo explicar y modificar
   cada módulo.
-- SHA del commit de contribución: pendiente; se registrará al hacer commit en la rama
-  `feat/w06-capacidades-oscar`.
-- SHA final de entrega: pendiente; se registrará después de integrar las ramas de ambos y ejecutar la
-  validación conjunta sobre ese commit.
+- SHA del commit de contribución: `3b0607aeb22a8191f9020f13e901317fca6ca206` (`feat: capacidades del dispositivo y notificaciones - Semana 6`), integrado
+  en `main` por el PR #14 (merge `58678bfbe026c7e217d08e72d499c59f783d95d7`).
+- SHA final de entrega: el código de la semana quedó validado en el merge `732a063c1b43242b7454a911d59e26c0eeb45269` del PR #15
+  (etiqueta `semana-06`), con Actions en verde en los seis workflows del repositorio.
+
+### Semana 8 — Espinoza Landeta Oscar — 3523110665
+
+- Grupo y equipo: 9A, equipo E03 (repositorio `PWA-9A-E03`; integrantes: Espinoza Landeta Oscar y
+  Contreras Martinez Alejandro).
+- Mi contribución de esta semana y enlace: Hice el diagnóstico inicial de la PWA y las capas de
+  prueba unitaria e integración, con su infraestructura. Agregué `tests/unit/validation.test.ts`,
+  `tests/unit/queue-rules.test.ts` y `tests/unit/device-fallbacks.test.ts` (40 pruebas),
+  `tests/integration/offline-persistence.test.ts` y `tests/integration/sync-duplicates.test.ts`
+  (12 pruebas), los datos sintéticos de `tests/fixtures/`, el corredor `scripts/run-layer.mjs` con
+  reportes JUnit, `tsconfig.test.json`, `.eslintrc.json`, `.c8rc.json`, `playwright.config.ts`, los
+  scripts de `package.json` y `docs/test-strategy.md`, además de la sección de la Semana 8 del
+  `README.md`. Alejandro entrega la capa E2E, el workflow de CI y la evidencia del defecto
+  controlado. Commit de contribución:
+  [`5d5bbbe77ff17348b8a527d44fcd357a80dd0b08`](https://github.com/AlexD39/PWA-9A-E03/commit/5d5bbbe77ff17348b8a527d44fcd357a80dd0b08)
+  (`test: piramide de pruebas, lint y cobertura - Semana 8`).
+- Decisión técnica y motivo: Cada riesgo se prueba en la capa más barata que aún lo demuestre
+  (matriz en `docs/test-strategy.md`, sección 2). La validación y las reglas de cola son unitarias
+  porque son lógica pura con muchas entradas; guardar sin conexión, recargar y el reintento tras
+  una respuesta perdida son de integración porque exigen ensamblar cola, almacén, transporte y
+  servidor; solo lo que depende del navegador (service worker, IndexedDB, desconexión real) sube a
+  E2E. Usé el corredor estándar `node:test`, que ya produce reportes JUnit sin agregar una
+  librería de pruebas. También configuré Playwright para no reutilizar nunca un servidor ya
+  abierto, porque con uno viejo la E2E dio un falso verde contra una compilación anterior.
+- Prueba/comando que ejecuté: `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`,
+  `npm run build`, `npm run test:coverage`, `npm run test:e2e` (con `E2E_BROWSER_CHANNEL=msedge`),
+  `npm run verify` y `bash public-tests/check.sh`, primero en mi árbol de trabajo y luego en una
+  copia limpia del commit `5d5bbbe`. Además rompí el código a propósito de 22 maneras y ejecuté
+  las capas contra el defecto controlado de "omitir la protección de duplicados".
+- Resultado observado y enlace al reporte: Lint y tipos sin errores; `npm test` con las 7 suites
+  heredadas, 40 pruebas unitarias y 12 de integración en verde; build correcto; cobertura de
+  40,6 % de líneas y 68,2 % de ramas sobre todo `src/`. Las pruebas detectaron 20 de las 22
+  roturas (las 2 restantes son equivalentes: otra regla ya rechaza lo mismo). Con el defecto
+  controlado fallan 3 pruebas unitarias, 3 de integración y 1 E2E; al restaurar el archivo todo
+  vuelve a pasar. Los reportes se generan en `reports/` y `coverage/`; la corrida de GitHub Actions
+  sobre este commit y los enlaces de fallo y recuperación del defecto se registran en la entrega de
+  Classroom y en el README cuando Actions termina.
+- Qué demuestra y qué no demuestra: Demuestra que una captura inválida se rechaza sin escribir
+  nada, que lo guardado sin conexión sobrevive a una recarga, que el reintento con la misma clave
+  no crea otra revisión ni siquiera cuando se pierde la respuesta del servidor, y que sin cámara,
+  ubicación o permiso de avisos hay un estado claro y la captura sigue. No demuestra el
+  comportamiento del motor real de IndexedDB ni del service worker (eso es la E2E), ni la cámara
+  real ni una notificación del sistema con permiso concedido.
+- Limitación o riesgo: La cobertura de líneas de las capas de Node es baja en los archivos de
+  interfaz (0 %) porque solo la E2E los ejerce. Los dobles reproducen únicamente lo que la
+  aplicación usa. La E2E se verificó localmente con Edge; su ejecución en Ubuntu la valida Actions.
+- IA: Utilicé Claude Code (Claude Sonnet 5.5) para ejecutar la aplicación y hacer el diagnóstico,
+  proponer la estructura de capas, escribir las pruebas y la infraestructura, y hacer la revisión
+  por mutación. Validé yo mismo cada resultado ejecutando los comandos, comprobando que cada prueba
+  falla cuando se rompe lo que dice proteger y leyendo cada archivo para poder explicarlo y
+  modificarlo.
+- SHA del commit de contribución: `5d5bbbe77ff17348b8a527d44fcd357a80dd0b08`
+  (`test: piramide de pruebas, lint y cobertura - Semana 8`).
+- SHA final de entrega común: se entrega en Classroom tras el último cambio integrado del equipo;
+  no se escribe aquí porque un commit no puede contener su propio SHA.
 
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
@@ -262,7 +317,7 @@
 - Limitación o riesgo: La instalabilidad completa también depende de servir la aplicación mediante HTTPS y, para el comportamiento offline, de implementar el Service Worker en una semana posterior. La evaluación conjunta de CI depende además de los artefactos de interfaz asignados a Oscar.
 - Uso de IA: Utilicé Codex para revisar el alcance asignado, estructurar el manifest, preparar los iconos SVG, configurar la ejecución de la prueba TypeScript y contrastar los comandos de verificación. Revisé los cambios y validé personalmente los resultados registrados.
 - SHA del commit de contribución: `a3cc1232a8ba3b25e27c88ac20b50802d3d74b47` (`feat: implementar manifest y pruebas PWA de Semana 2`).
-- SHA final de entrega: pendiente; se registrará después de integrar las ramas de Alejandro y Oscar y ejecutar la validación conjunta sobre ese mismo commit.
+- SHA final de entrega: el código de la semana quedó validado en el merge `94ede81f748e15efb726758c9e7213add76290c4` del PR #4 (`feat/w02-oel-shell`), que integró las ramas de Alejandro y Oscar en `main`.
 
 ### Semana 3 — Contreras Martinez Alejandro — 3523110460
 
@@ -415,4 +470,4 @@
   y confirmé personalmente cada salida registrada.
 - SHA del commit de contribución: `656a811278f25d502a6094a2cfa018f78dbf931d`
   (`test: agregar pruebas y CI de capacidades - Semana 6`).
-- SHA final de entrega: pendiente.
+- SHA final de entrega: el código de la semana quedó validado en el merge `732a063c1b43242b7454a911d59e26c0eeb45269` del PR #15 (etiqueta `semana-06`), con Actions en verde en los seis workflows del repositorio.
