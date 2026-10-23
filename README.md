@@ -347,6 +347,64 @@ restauró antes de continuar y la ejecución final de `npm.cmd test` volvió a q
 La comprobación manual de cámara, ubicación y notificación real del sistema queda pendiente en un
 navegador de escritorio; no forma parte de lo demostrado por las dependencias simuladas.
 
+## Semana 8: pirámide de pruebas e integración continua
+
+Esta semana no agrega funciones: convierte el flujo existente (crear → guardar sin conexión →
+recargar → reconectar → sincronizar sin duplicar, y la variante con una capacidad del
+dispositivo denegada o ausente) en pruebas repetibles y las automatiza en CI. La estrategia, el
+diagnóstico, la matriz riesgo–prueba–capa, la cobertura y el defecto controlado están en
+`docs/test-strategy.md`.
+
+**Versiones.** Node.js 20.11 o superior (verificado en local con v24.20.0; el CI usa Node 22),
+npm 10 o superior (11.19.0 en local). Para E2E hace falta un Chromium: `npx playwright install
+chromium`, o un navegador ya instalado con `E2E_BROWSER_CHANNEL=msedge` (o `chrome`).
+
+**Instalación y arranque.**
+
+```bash
+npm ci
+npm run dev        # desarrollo en http://localhost:3000
+npm run build && npm run start   # versión compilada, la que usa la E2E
+```
+
+**Comandos de verificación** (qué ejecuta cada uno):
+
+| Comando | Qué hace |
+|---|---|
+| `npm run lint` | ESLint (`next/core-web-vitals`), sin advertencias permitidas |
+| `npm run typecheck` | `tsc --noEmit` en modo estricto |
+| `npm run build` | Compila la aplicación |
+| `npm run test:unit` | Pruebas unitarias (`tests/unit/`), reporte `reports/junit-unit.xml` |
+| `npm run test:integration` | Pruebas de integración (`tests/integration/`), reporte `reports/junit-integration.xml` |
+| `npm test` | Tipos, las suites de semanas anteriores, unitarias e integración |
+| `npm run test:coverage` | Unitarias + integración con cobertura en `coverage/` |
+| `npm run test:e2e` | E2E con Playwright (requiere `npm run build` antes); reportes en `reports/` y `playwright-report/` |
+| `npm run verify` / `make verify` | Estructura, `npm test` y build; escribe `reports/verification.json` |
+
+Los E2E arrancan solos el servidor compilado (`npm run start -- -p 3100`, puerto configurable con
+`E2E_PORT`) y no reutilizan uno ya abierto: si el puerto está ocupado, fallan con un mensaje
+claro.
+
+**Qué cubre cada capa.**
+
+- `tests/unit/`: la regla de validación de una captura (`validation.test.ts`), las reglas de
+  cola e idempotencia (`queue-rules.test.ts`) y los fallos de cámara, ubicación y avisos
+  (`device-fallbacks.test.ts`).
+- `tests/integration/`: guardar sin conexión, recargar y reconectar sobre la cola real
+  (`offline-persistence.test.ts`) y reintento de la misma operación sin duplicar, incluida la
+  ruta HTTP real (`sync-duplicates.test.ts`). Los datos y las respuestas remotas salen de
+  `tests/fixtures/`.
+- `tests/e2e/`: el flujo completo desde la interfaz, con desconexión real.
+
+### Verificación de Oscar en Windows
+
+Se ejecutaron `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`,
+`npm run test:coverage` y `npm run test:e2e` (con `E2E_BROWSER_CHANNEL=msedge`) desde Git Bash.
+Resultado: lint y tipos sin errores; `npm test` con las 7 suites heredadas, 40 pruebas unitarias
+y 12 de integración en verde; build correcto; cobertura de 40,6 % de líneas y 68,2 % de ramas
+sobre todo `src/`. La revisión por mutación detectó 20 de 22 roturas del código (las 2
+restantes son equivalentes; ver `docs/test-strategy.md`, sección 6).
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.

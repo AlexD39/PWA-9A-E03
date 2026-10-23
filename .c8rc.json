@@ -1,0 +1,10 @@
+{
+  "all": true,
+  "src": ["src"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["tests/**", ".test-build/**", "node_modules/**"],
+  "excludeAfterRemap": true,
+  "reporter": ["text-summary", "lcov", "json-summary"],
+  "reportsDir": "coverage",
+  "tempDirectory": "coverage/tmp"
+}

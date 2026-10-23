@@ -64,6 +64,8 @@ try {
   run(process.execPath, [resolve(temporaryOutput, "tests", "rendering.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "sync.spec.js")]);
   run(process.execPath, [resolve(temporaryOutput, "tests", "capabilities.spec.js")]);
+  // Pirámide de pruebas (Semana 8): unitarias e integración. Los E2E van aparte (`npm run test:e2e`).
+  run(process.execPath, [resolve(root, "scripts", "run-layer.mjs"), "unit", "integration"]);
 } finally {
   rmSync(temporaryOutput, { recursive: true, force: true });
 }

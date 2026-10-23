@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "incremental": true,
+    "tsBuildInfoFile": ".test-build/tsconfig.tsbuildinfo",
+    "outDir": ".test-build",
+    "rootDir": ".",
+    "sourceMap": true,
+    "jsx": "react-jsx",
+    "plugins": []
+  },
+  "include": ["tests/unit/**/*.ts", "tests/integration/**/*.ts", "tests/fixtures/**/*.ts"]
+}
