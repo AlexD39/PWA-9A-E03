@@ -93,7 +93,7 @@ semana con un corredor estándar (`node:test`) que produce reportes JUnit.
 | Todo lo que no usa navegador | `npm test` | Tipos, las 7 suites heredadas, unitarias e integración |
 | Cobertura | `npm run test:coverage` | Unitarias + integración bajo `c8`; escribe `coverage/` (`lcov.info`, `coverage-summary.json`) |
 | E2E | `npm run test:e2e` | Playwright; reportes `reports/junit-e2e.xml`, `reports/e2e-results.json` y `playwright-report/` |
-| Verificación integral | `npm run verify` (`make verify`) | Estructura, `npm test` y build; escribe `reports/verification.json` |
+| Verificación integral | `npm run verify` (`make verify`) | Estructura, lint, tipos, `npm test` y build; escribe `reports/verification.json` |
 
 **Arranque del servidor para E2E.** Se prueba la aplicación **compilada**, porque el service
 worker solo se registra en producción y el flujo "recargar sin conexión" depende de él. Antes de
