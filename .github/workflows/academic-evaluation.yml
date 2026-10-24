@@ -1,0 +1,75 @@
+# Semana 8: integración continua de la pirámide de pruebas.
+#
+# Cada etapa obligatoria falla el trabajo si falla (comportamiento por omisión de GitHub
+# Actions). Los reportes y la cobertura se publican como artefacto SIEMPRE, también cuando una
+# etapa falla (`if: always()`), para poder revisar el fallo.
+#
+# Los comandos de cada etapa y el arranque del servidor de E2E están documentados en
+# docs/test-strategy.md (sección 4).
+name: Academic Evaluation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalación limpia
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Comprobación de tipos
+        run: npm run typecheck
+
+      - name: Compilación
+        run: npm run build
+
+      - name: Pruebas unitarias
+        run: npm run test:unit
+
+      - name: Pruebas de integración
+        run: npm run test:integration
+
+      - name: Suites de semanas anteriores y verificación completa sin navegador
+        run: npm test
+
+      - name: Cobertura
+        run: npm run test:coverage
+
+      - name: Instalar Chromium para E2E
+        run: npx playwright install --with-deps chromium
+
+      # `npm run test:e2e` arranca `npm run start -- -p 3100` (aplicación ya compilada arriba)
+      # mediante la sección webServer de playwright.config.ts y lo detiene al terminar.
+      - name: Pruebas E2E
+        run: npm run test:e2e
+
+      - name: Publicar resultados y cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: academic-evidence-w08
+          if-no-files-found: ignore
+          path: |
+            reports/
+            coverage/
+            playwright-report/
+            test-results/
