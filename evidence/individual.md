@@ -502,7 +502,7 @@
   `npm.cmd run build`, `npm.cmd run test:coverage`, `npm.cmd run test:e2e` con
   `E2E_BROWSER_CHANNEL=msedge`, `npm.cmd run verify`, `node scripts/verify.mjs --structure` y
   `public-tests/check.sh` mediante Git Bash. También ejecuté
-  `node C:\Users\leo-1\Downloads\mutate-w08.mjs` desde la raíz y las tres mutaciones E2E
+  `node mutate-w08.mjs` (script proporcionado, copiado a la raíz) y las tres mutaciones E2E
   temporales. Para el defecto controlado ejecuté las capas unitarias, integración, build y E2E
   antes de publicar la rama temporal.
 - Resultado observado y enlace al reporte: Lint y tipos terminaron sin errores; pasaron las siete
@@ -536,7 +536,10 @@
   `node` residuales al cerrar; se detuvieron después de liberar el puerto 3100. Ubuntu en Actions
   sí terminó con código 0 y publicó los reportes, por lo que el bloqueo parece específico del
   entorno local. La captura usada por el caso propio es sintética y no sustituye una prueba con
-  hardware real.
+  hardware real. Además, la espera de 20 s del caso de reconexión no distingue si la sincronización
+  la disparó el evento `online` o el temporizador de 10 s: al quitar el evento `online` en una
+  revisión por mutación posterior, el caso siguió pasando. No se puede fijar de forma determinista
+  desde el navegador sin controlar el reloj de la página, así que queda como limitación conocida.
 - Uso de IA: Utilicé Codex para analizar las instrucciones y los archivos de referencia, preparar
   los E2E y el workflow, revisar los cambios, ejecutar las verificaciones y mutaciones, y organizar
   la evidencia. Revisé cada modificación, autoricé cada fase antes de aplicarla y confirmé

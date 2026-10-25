@@ -167,3 +167,9 @@ envíos con lease vencido.
 - No se verificó una cámara real ni una notificación del sistema con permiso concedido
   (ver `docs/capabilities.md`, sección 9).
 - La cobertura no incluye los archivos `.tsx` por la vía de Node; ver sección 5.
+- La E2E de reconexión espera hasta 20 s a que el registro quede sincronizado, y eso no distingue
+  si lo disparó el evento `online` (inmediato) o el temporizador de 10 s: al quitar el evento
+  `online` en una revisión por mutación, la prueba seguía pasando. Fijarlo exigiría controlar el
+  reloj de la página, lo que haría frágil el resto de la E2E (la actualización de la interfaz y el
+  service worker dependen de temporizadores reales). Queda como limitación conocida; una prueba
+  unitaria de `startAutoSync` con `window` simulado sería la forma determinista de cubrirlo.
