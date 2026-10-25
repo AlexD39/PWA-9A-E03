@@ -471,3 +471,80 @@
 - SHA del commit de contribución: `656a811278f25d502a6094a2cfa018f78dbf931d`
   (`test: agregar pruebas y CI de capacidades - Semana 6`).
 - SHA final de entrega: el código de la semana quedó validado en el merge `732a063c1b43242b7454a911d59e26c0eeb45269` del PR #15 (etiqueta `semana-06`), con Actions en verde en los seis workflows del repositorio.
+
+### Semana 8 — Contreras Martinez Alejandro — 3523110460
+
+- Grupo y equipo: 9A, equipo E03 (repositorio `PWA-9A-E03`; integrantes: Espinoza Landeta Oscar y
+  Contreras Martinez Alejandro).
+- Mi contribución de esta semana y enlace: Incorporé `tests/e2e/helpers.ts` y
+  `tests/e2e/critical-flow.spec.ts` con cinco escenarios proporcionados y tres propios, el workflow
+  `.github/workflows/academic-evaluation.yml`, y amplié `scripts/verify.mjs` para exigir los
+  artefactos de Semana 8 y ejecutar lint, tipos, pruebas y build. También documenté la verificación
+  de Windows y el defecto controlado en el README. La contribución técnica está en
+  [`d57afe0a1e977834c3463eaed4c3a30a4b3a5593`](https://github.com/AlexD39/PWA-9A-E03/commit/d57afe0a1e977834c3463eaed4c3a30a4b3a5593)
+  (`test: agregar E2E y CI academica - Semana 8`). No modifiqué las pruebas unitarias, de
+  integración, fixtures ni configuración entregados por Oscar.
+- Casos propios agregados: Verifiqué que un registro creado y editado mientras seguía pendiente se
+  sincronizara como un solo registro con `serverRevision` 2 y el resumen nuevo; que `?fallo=1`
+  dejara el registro pendiente con "Reintento programado" y después permitiera sincronizarlo una
+  sola vez; y que una imagen PNG sintética creada con un `canvas` se guardara solo en IndexedDB y
+  reapareciera al editar el registro.
+- Decisión técnica y motivo: La desconexión se realiza con `context.setOffline(true)` porque el
+  riesgo depende de la red real del navegador, del service worker y de IndexedDB. Cámara y
+  ubicación se simulan con `addInitScript` porque CI no debe depender de hardware ni permisos
+  físicos. Los E2E usan la aplicación compilada (`next build` + `next start`) porque el service
+  worker solo se registra en producción; `next dev` no demostraría la recarga offline. Se mantiene
+  `reuseExistingServer: false` para impedir un falso verde contra una compilación vieja. La
+  pirámide conserva más pruebas unitarias que E2E: una unitaria aísla reglas y combinaciones de
+  entrada, integración demuestra el ensamblaje de cola/almacén/transporte/servidor y E2E añade lo
+  que solo existe en el navegador, a mayor costo y variabilidad.
+- Comandos ejecutados: `npm.cmd ci`, `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd test`,
+  `npm.cmd run build`, `npm.cmd run test:coverage`, `npm.cmd run test:e2e` con
+  `E2E_BROWSER_CHANNEL=msedge`, `npm.cmd run verify`, `node scripts/verify.mjs --structure` y
+  `public-tests/check.sh` mediante Git Bash. También ejecuté
+  `node mutate-w08.mjs` (script proporcionado, copiado a la raíz) y las tres mutaciones E2E
+  temporales. Para el defecto controlado ejecuté las capas unitarias, integración, build y E2E
+  antes de publicar la rama temporal.
+- Resultado observado y enlace al reporte: Lint y tipos terminaron sin errores; pasaron las siete
+  suites heredadas, 40 unitarias, 12 de integración y ocho E2E. El build produjo seis rutas;
+  cobertura: 40,56 % de líneas y 68,21 % de ramas; `verify` terminó en `pass` y el check público
+  informó `Estructura presente`. La
+  [corrida verde de la rama](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40037975442)
+  terminó en 6 min 42 s y publicó `academic-evidence-w08` con reportes, cobertura y resultados de
+  Playwright.
+- Defecto controlado: El commit temporal `929d5d7` eliminó las dos defensas contra duplicados de
+  `applyOperation`. Fallaron tres unitarias (misma clave, clave repetida con contenido distinto y
+  mismo contenido bajo otra clave), tres de integración (dos variantes de respuesta perdida y POST
+  repetido) y un E2E (respuesta perdida); el build siguió correcto. La
+  [corrida roja está aquí](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40039335467).
+  El revert `790b6eb` restauró el código: 40 unitarias y 12 de integración volvieron a pasar y la
+  [corrida verde está aquí](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40039652401).
+- Revisión por mutación: El script proporcionado detectó 20 de 22 roturas. V1 (permitir hallazgos
+  negativos) es equivalente porque la regla cruzada entre estado y hallazgos rechaza el mismo
+  dato; V2 (quitar la comparación del mes) es equivalente porque la comprobación del día ya
+  rechaza el desbordamiento al mes siguiente. Además, quitar `prepareOffline` hizo fallar el flujo
+  crítico al recargar sin red; cambiar "Pendiente de sincronizar" hizo fallar el caso de servidor
+  caído; y desactivar `?perder=1` hizo fallar el caso de respuesta perdida. Cada archivo recuperó
+  su contenido original antes de continuar.
+- Qué demuestra y qué no demuestra: Los E2E demuestran desde la interfaz que el service worker
+  permite recargar sin red, IndexedDB conserva registros y evidencia, la reconexión sincroniza y
+  una respuesta perdida no duplica. También demuestran fallos y alternativas de permisos en un
+  navegador real. No prueban cámara o ubicación físicas, otros motores de navegador, un backend
+  persistente ni múltiples instancias reales del servidor.
+- Limitación o riesgo: El servidor de la actividad vive en memoria y exige un solo worker. En
+  Windows dentro de OneDrive, Playwright mostró los ocho casos aprobados pero dejó procesos
+  `node` residuales al cerrar; se detuvieron después de liberar el puerto 3100. Ubuntu en Actions
+  sí terminó con código 0 y publicó los reportes, por lo que el bloqueo parece específico del
+  entorno local. La captura usada por el caso propio es sintética y no sustituye una prueba con
+  hardware real. Además, la espera de 20 s del caso de reconexión no distingue si la sincronización
+  la disparó el evento `online` o el temporizador de 10 s: al quitar el evento `online` en una
+  revisión por mutación posterior, el caso siguió pasando. No se puede fijar de forma determinista
+  desde el navegador sin controlar el reloj de la página, así que queda como limitación conocida.
+- Uso de IA: Utilicé Codex para analizar las instrucciones y los archivos de referencia, preparar
+  los E2E y el workflow, revisar los cambios, ejecutar las verificaciones y mutaciones, y organizar
+  la evidencia. Revisé cada modificación, autoricé cada fase antes de aplicarla y confirmé
+  personalmente los resultados locales y las tres corridas de Actions registradas.
+- SHA del commit de contribución: `d57afe0a1e977834c3463eaed4c3a30a4b3a5593`
+  (`test: agregar E2E y CI academica - Semana 8`).
+- SHA final de entrega común: se entrega en Classroom después de integrar el PR; no se escribe en
+  este archivo porque un commit no puede contener su propio SHA.

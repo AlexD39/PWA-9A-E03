@@ -55,6 +55,19 @@ const required = [
   "src/lib/device/evidence.ts",
   "src/components/evidence-panel.tsx",
   "src/components/notification-panel.tsx",
+  "docs/test-strategy.md",
+  ".github/workflows/academic-evaluation.yml",
+  "playwright.config.ts",
+  "scripts/run-layer.mjs",
+  "tests/unit/validation.test.ts",
+  "tests/unit/queue-rules.test.ts",
+  "tests/unit/device-fallbacks.test.ts",
+  "tests/integration/offline-persistence.test.ts",
+  "tests/integration/sync-duplicates.test.ts",
+  "tests/e2e/critical-flow.spec.ts",
+  "tests/e2e/helpers.ts",
+  "tests/fixtures/inspections.ts",
+  "tests/fixtures/transports.ts",
   "evidence/individual.md"
 ];
 const missing = required.filter(file => !existsSync(resolve(root, file)));
@@ -65,7 +78,7 @@ if (structureOnly) {
 }
 const checks = [{ id: "structure", status: missing.length ? "fail" : "pass", missing }];
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-for (const [id, args] of [["test", ["test"]], ["build", ["run", "build"]]]) {
+for (const [id, args] of [["lint", ["run", "lint"]], ["typecheck", ["run", "typecheck"]], ["test", ["test"]], ["build", ["run", "build"]]]) {
   console.log(`\nVerificando ${id}...`);
   const run = spawnSync(npm, args, { cwd: root, encoding: "utf8", shell: process.platform === "win32", maxBuffer: 20 * 1024 * 1024 });
   if (run.stdout) process.stdout.write(run.stdout);
@@ -76,7 +89,7 @@ const git = args => {
   const r = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   return r.status === 0 ? r.stdout.trim() : null;
 };
-const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "docs/sync-policy.md", "docs/capabilities.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
+const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "docs/sync-policy.md", "docs/capabilities.md", "docs/test-strategy.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
 const gitStatus = git(["status", "--porcelain"]);
 const result = {
   schemaVersion: 2,

@@ -379,7 +379,7 @@ npm run build && npm run start   # versión compilada, la que usa la E2E
 | `npm test` | Tipos, las suites de semanas anteriores, unitarias e integración |
 | `npm run test:coverage` | Unitarias + integración con cobertura en `coverage/` |
 | `npm run test:e2e` | E2E con Playwright (requiere `npm run build` antes); reportes en `reports/` y `playwright-report/` |
-| `npm run verify` / `make verify` | Estructura, `npm test` y build; escribe `reports/verification.json` |
+| `npm run verify` / `make verify` | Estructura, lint, tipos, `npm test` y build; escribe `reports/verification.json` |
 
 Los E2E arrancan solos el servidor compilado (`npm run start -- -p 3100`, puerto configurable con
 `E2E_PORT`) y no reutilizan uno ya abierto: si el puerto está ocupado, fallan con un mensaje
@@ -404,6 +404,54 @@ Resultado: lint y tipos sin errores; `npm test` con las 7 suites heredadas, 40 p
 y 12 de integración en verde; build correcto; cobertura de 40,6 % de líneas y 68,2 % de ramas
 sobre todo `src/`. La revisión por mutación detectó 20 de 22 roturas del código (las 2
 restantes son equivalentes; ver `docs/test-strategy.md`, sección 6).
+
+### Verificación de Alejandro en Windows
+
+Se verificó la contribución con Node.js v24.11.1, npm 11.6.2, Git 2.52.0 y Edge (Chromium).
+Desde la raíz del repositorio se ejecutaron estos comandos:
+
+```powershell
+npm.cmd ci
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+npm.cmd run test:coverage
+$env:E2E_BROWSER_CHANNEL = "msedge"
+npm.cmd run test:e2e
+npm.cmd run verify
+node scripts/verify.mjs --structure
+& 'C:\Program Files\Git\bin\bash.exe' public-tests/check.sh
+```
+
+Lint y tipos terminaron sin errores; las siete suites heredadas, las 40 pruebas unitarias y las
+12 de integración pasaron. El build generó seis rutas y la cobertura fue 40,56 % de líneas y
+68,21 % de ramas. Los ocho E2E pasaron con un solo worker: los cinco casos de referencia y tres
+propios (edición pendiente hasta `serverRevision` 2, recuperación tras `?fallo=1` y persistencia
+local de una imagen sintética). `npm run verify` terminó en `pass` y el check público informó
+`Estructura presente`.
+
+En Windows dentro de OneDrive, Playwright mostró los ocho casos aprobados pero dejó procesos
+`node` residuales al cerrar el servidor; se detuvieron después de liberar el puerto 3100. La
+[corrida de Academic Evaluation en Ubuntu](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40037975442)
+terminó correctamente en 6 min 42 s y publicó el artefacto `academic-evidence-w08`, por lo que
+los reportes y el cierre del servidor también quedaron comprobados en CI.
+
+La revisión por mutación del archivo proporcionado detectó 20 de 22 roturas. V1 y V2 son
+equivalentes: la regla cruzada estado/hallazgos ya rechaza los hallazgos negativos y la
+comprobación del día ya rechaza una fecha cuyo mes se desborda. Además se quitaron temporalmente
+`prepareOffline`, la etiqueta "Pendiente de sincronizar" y el comportamiento de `?perder=1`;
+cada cambio hizo fallar el E2E correspondiente y se restauró antes de continuar.
+
+### Defecto controlado
+
+En la rama temporal `chore/w08-defecto-controlado`, que no se integra ni tiene PR, se eliminaron
+las dos defensas contra duplicados de `applyOperation`. Localmente fallaron tres pruebas
+unitarias, tres de integración y solo el E2E de respuesta perdida; el build siguió compilando,
+por lo que la detección provino de las aserciones. La
+[corrida con el defecto quedó roja](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40039335467).
+Después se revirtió el commit, volvieron a pasar 40 unitarias y 12 de integración, y la
+[corrida de restauración quedó verde](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40039652401).
 
 ## Flujo de trabajo del curso
 

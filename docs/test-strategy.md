@@ -93,7 +93,7 @@ semana con un corredor estándar (`node:test`) que produce reportes JUnit.
 | Todo lo que no usa navegador | `npm test` | Tipos, las 7 suites heredadas, unitarias e integración |
 | Cobertura | `npm run test:coverage` | Unitarias + integración bajo `c8`; escribe `coverage/` (`lcov.info`, `coverage-summary.json`) |
 | E2E | `npm run test:e2e` | Playwright; reportes `reports/junit-e2e.xml`, `reports/e2e-results.json` y `playwright-report/` |
-| Verificación integral | `npm run verify` (`make verify`) | Estructura, `npm test` y build; escribe `reports/verification.json` |
+| Verificación integral | `npm run verify` (`make verify`) | Estructura, lint, tipos, `npm test` y build; escribe `reports/verification.json` |
 
 **Arranque del servidor para E2E.** Se prueba la aplicación **compilada**, porque el service
 worker solo se registra en producción y el flujo "recargar sin conexión" depende de él. Antes de
@@ -167,3 +167,9 @@ envíos con lease vencido.
 - No se verificó una cámara real ni una notificación del sistema con permiso concedido
   (ver `docs/capabilities.md`, sección 9).
 - La cobertura no incluye los archivos `.tsx` por la vía de Node; ver sección 5.
+- La E2E de reconexión espera hasta 20 s a que el registro quede sincronizado, y eso no distingue
+  si lo disparó el evento `online` (inmediato) o el temporizador de 10 s: al quitar el evento
+  `online` en una revisión por mutación, la prueba seguía pasando. Fijarlo exigiría controlar el
+  reloj de la página, lo que haría frágil el resto de la E2E (la actualización de la interfaz y el
+  service worker dependen de temporizadores reales). Queda como limitación conocida; una prueba
+  unitaria de `startAutoSync` con `window` simulado sería la forma determinista de cubrirlo.
