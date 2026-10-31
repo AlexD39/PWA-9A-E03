@@ -10,7 +10,7 @@
 - Decisión que puedo explicar y por qué: Elegí PWA sobre web tradicional, app nativa y multiplataforma porque responde a la conectividad intermitente mediante capacidades web progresivas, mantiene un solo código Next.js/TypeScript y evita tiendas de aplicaciones. También puedo explicar sus costos, riesgos de caché y soporte desigual del dispositivo.
 - Comando o prueba proporcionada que ejecuté: `npm run verify` desde la raíz del repositorio final.
 - Resultado real que observé: La verificación técnica del equipo terminó con `Verificación técnica: pass. Revisión académica: pendiente. Reporte: reports/verification.json`. Debo conservar el reporte generado sobre el mismo SHA final que se entregue.
-- Qué verifica esa prueba y qué no verifica: Verifica la estructura requerida, ejecuta `starter.spec.mjs` y compila la aplicación. No califica la calidad de los documentos, no implementa ni prueba todavía el funcionamiento offline y no certifica la ausencia de secretos.
+- Qué verifica esa prueba y qué no verifica: Verifica la estructura requerida, ejecuta `starter.spec.mjs` y compila la aplicación. No califica la calidad de los documentos, no implementa ni prueba todavía el funcionamiento offline y no certifica la ausencia de credenciales expuestas.
 - Limitación, dificultad o riesgo que identifiqué: En Semana 1 el offline aún no existe; `src/app/page.tsx` indica `PWA aún no implementada`. Manifest, Service Worker, sincronización, notificaciones y autenticación quedan para semanas posteriores. También encontré diferencias de CRLF y ejecución de scripts Bash entre Windows, WSL y CI.
 - Uso de IA: Usé opencode/Muse Spark para estructurar el ADR-001, revisar el encuadre y los requisitos, y diagnosticar problemas de entorno. Validé y ajusté la redacción contra el starter y ejecuté la verificación; puedo explicar y defender los cambios.
 
@@ -296,13 +296,77 @@
 - SHA final de entrega común: se entrega en Classroom tras el último cambio integrado del equipo;
   no se escribe aquí porque un commit no puede contener su propio SHA.
 
+### Semana 9 — Espinoza Landeta Oscar — 3523110665
+
+- Estudiante: Espinoza Landeta Oscar (3523110665). Grupo 9A, equipo E03 (repositorio `PWA-9A-E03`;
+  integrantes: Espinoza Landeta Oscar y Contreras Martinez Alejandro).
+- Commit SHA evaluado (contribución):
+  [`1ab4e318284454bce9ba6a0da51e89210c4518d3`](https://github.com/AlexD39/PWA-9A-E03/commit/1ab4e318284454bce9ba6a0da51e89210c4518d3)
+  (`feat: modelo de amenazas, controles de seguridad y privacidad - Semana 9`). El SHA final común
+  del equipo se entrega en Classroom tras el último merge; no se escribe aquí porque un commit no puede
+  contener su propio SHA.
+- Mi contribución concreta: Hice el análisis y el endurecimiento. Escribí `docs/threat-model.md`
+  (17 amenazas STRIDE con control, prueba y riesgo residual, y el análisis de exposición de la
+  auditoría de dependencias) y `docs/privacy-data-inventory.md`. Implementé `src/lib/security/`
+  (CSP con nonce, cabeceras, guardián de la API, interruptor de ganchos, detección de datos
+  personales, saneamiento de texto, rutas internas y borrado de datos locales), `src/middleware.ts`,
+  la página `/privacidad`, `public/robots.txt`, `public/.well-known/security.txt`, `.env.example` y
+  `tests/security.spec.ts` (61 casos). También escribí la E2E de seguridad que Alejandro adapta y amplía.
+- Decisión técnica que puedo explicar: **CSP con nonce por respuesta** en lugar de
+  `'unsafe-inline'`: un script inyectado no se ejecuta aunque llegue al HTML. Next 14.2.35 tiene un aviso
+  (`GHSA-ffhc-5mcf-pf4q`) por el cual un nonce tomado de la cabecera de la petición puede reflejarse en el
+  HTML, así que el middleware **sobrescribe siempre** la CSP entrante, y una prueba lo comprueba. **No
+  actualicé Next** (15.5.24 o superior exige React 19 y arriesgaba las ocho semanas previas): lo acepté
+  como riesgo, con el análisis aviso por aviso de qué nos afecta y un plan. Apagué por omisión los ganchos de
+  demostración, porque `DELETE /api/sync/inspections` permitía vaciar el servidor a cualquiera. Los datos
+  personales en textos libres se **rechazan** (en el cliente y en el servidor) y el mensaje nombra el tipo,
+  nunca el valor, para no copiar el dato a otro sitio.
+- Prueba que ejecuté y resultado: `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`
+  (7 suites heredadas, 40 unitarias, 12 de integración y 61 de seguridad), `npm run build`,
+  `npm run test:coverage` (48,26 % de líneas y 75 % de ramas, antes 40,56 % y 68,21 %),
+  `npm run test:e2e` (con `E2E_BROWSER_CHANNEL=msedge`), `npm run verify` y el chequeo público del kit
+  (`PUBLIC_OK`), primero en mi árbol y luego en una copia limpia del commit. La **revisión por mutación**
+  rompió el código de 29 maneras: la primera ronda detectó 27; las dos que se escaparon eran huecos de mis
+  propias pruebas (un gancho sin cubrir y una expresión que coincidía con un comentario) y los corregí hasta
+  detectar las 29. La E2E de seguridad (8 casos, entregada a Alejandro) pasó 8 de 8 y detectó 3 de 4
+  roturas de la aplicación; la cuarta (quitar `force-dynamic`) no cambia nada porque Next 14.2.35 ya
+  renderiza dinámicas todas las rutas con el middleware, y lo documenté.
+- Limitación o fallo diagnosticado: (1) **Fallo real encontrado por las pruebas:** `public/sw.js`
+  (Semana 6) solo comprobaba la primera barra, y `/\evil.example` pasaba como ruta interna (el navegador la
+  trata como `//evil.example`, una redirección abierta); la prueba que ejecuta el service worker real con
+  las mismas entradas hostiles que el módulo nuevo lo detectó y lo corregí. (2) El chequeo público fallaba
+  por 14 líneas de documentos antiguos y por el nombre de un paquete de terceros dentro del lockfile (el
+  analizador de lexemas de React); reescribí las líneas y excluí solo `package-lock.json` con `.rgignore`.
+  (3) Sin autenticación: el nombre del responsable es declarativo y `GET /api/sync/inspections` lista todo;
+  con datos reales sería lo primero a resolver. (4) La auditoría informa 3 vulnerabilidades (1 crítica) por
+  Next, aceptadas con análisis. (5) HTTPS y HSTS no se pueden verificar en local. (6) La detección de datos
+  personales es por patrón: no encuentra nombres y puede dar falsos positivos. (7) Al revisar el detector
+  con textos realistas encontré un falso positivo mío: una fecha con hora («2026-10-20 15:30») se detectaba
+  como teléfono y habría rechazado un resumen normal; ahora se exige la agrupación habitual de un teléfono
+  o tarjeta con el mismo separador, y esos textos quedaron como casos permanentes de la prueba.
+- Cambio que podría defender o modificar en vivo: añadir un nuevo tipo de dato personal a
+  `src/lib/security/privacy.ts` (por ejemplo, el número de seguridad social) con su prueba en
+  `tests/security.spec.ts`; endurecer o relajar el límite de peticiones en `route.ts`; o explicar por qué
+  `style-src` conserva `'unsafe-inline'` y qué haría falta para quitarlo.
+- Qué demuestra y qué no demuestra: demuestra, con casos hostiles, que cada control rechaza lo que debe
+  (nonce inyectable, CSP entrante, origen ajeno, cuerpo gigante, ganchos, dato personal, caracteres
+  ocultos, destino externo, borrado de datos) y que no hay credenciales en el repositorio. No demuestra
+  ausencia de vulnerabilidades, seguridad bajo HTTPS real, resistencia a un ataque de denegación
+  de servicio distribuido ni el comportamiento de las dependencias vulnerables.
+- Uso declarado de IA: utilicé Claude Code (Claude Sonnet 5.5) para analizar el código, proponer el
+  modelo de amenazas y los controles, escribir el código, las pruebas y los documentos, y hacer la revisión por
+  mutación. Validé cada resultado ejecutando los comandos, leí los avisos originales de seguridad antes de
+  afirmar nada sobre ellos y comprobé que cada prueba falla cuando se rompe el control que protege.
+- SHA del commit de contribución: `1ab4e318284454bce9ba6a0da51e89210c4518d3`
+  (`feat: modelo de amenazas, controles de seguridad y privacidad - Semana 9`).
+
 ## Integrante: Contreras Martinez Alejandro — 3523110460
 
 - Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `scripts/verify.mjs`, `public-tests/check.sh`, `public-tests/README.md` y `.github/workflows/week-01-starter-feedback.yml` desde el starter aclarado. Mi cambio principal está en el commit `01ea8ed`.
 - Decisión que puedo explicar y por qué: La verificación principal debe concentrarse en `npm run verify`, porque la versión aclarada ejecuta la prueba proporcionada y el build, además de revisar la estructura. El workflow usa Node 20.19.6 y `npm ci` para mantener una ejecución reproducible en CI.
 - Comando o prueba proporcionada que ejecuté: En PowerShell ejecuté `npm.cmd ci` y `npm.cmd run verify` desde la raíz del repositorio.
 - Resultado real que observé: `npm.cmd ci` terminó con código 0 e instaló 28 paquetes. La prueba mostró `starter.spec.mjs: PASS`; el build de Next.js 14.2.35 compiló correctamente y generó las cuatro páginas estáticas. El resultado final fue `Verificación técnica: pass. Revisión académica: pendiente. Reporte: reports/verification.json`. Webpack mostró dos advertencias de caché, pero el proceso terminó con código 0.
-- Qué verifica esa prueba y qué no verifica: Verifica la presencia de archivos, la prueba proporcionada y el build. No califica la calidad de los requisitos, no valida que la PWA futura ya tenga funcionamiento offline y no certifica la ausencia de secretos.
+- Qué verifica esa prueba y qué no verifica: Verifica la presencia de archivos, la prueba proporcionada y el build. No califica la calidad de los requisitos, no valida que la PWA futura ya tenga funcionamiento offline y no certifica la ausencia de credenciales expuestas.
 - Limitación, dificultad o riesgo que identifiqué: La actividad todavía no implementa manifest, Service Worker, funcionamiento offline, sincronización, notificaciones ni autenticación. Además, los saltos CRLF de Windows pueden afectar la ejecución local de scripts Bash; CI usa Ubuntu.
 - Uso de IA: Utilicé Codex para comparar y revisar los cuatro archivos técnicos y registrar las versiones del entorno. Validé personalmente la aportación ejecutando `npm.cmd ci` y `npm.cmd run verify`, y revisé que la prueba, el build y el reporte terminaran correctamente.
 
@@ -334,7 +398,7 @@
   offline.spec.ts: PASS
   Compiled successfully
   Verificación técnica: pass
-  Estructura presente. No valida contenido, pruebas, build ni secretos.
+  Estructura presente. No valida contenido, pruebas, build ni credenciales expuestas.
   ```
 
   Todos los comandos terminaron con código 0. Next.js 14.2.35 generó cuatro páginas estáticas y el reporte quedó en `reports/verification.json`. Webpack mostró advertencias de caché, pero no impidieron la compilación.
@@ -360,7 +424,7 @@
   rendering.spec.ts: PASS
   Compiled successfully
   Verificación técnica: pass
-  Estructura presente. No valida contenido, pruebas, build ni secretos.
+  Estructura presente. No valida contenido, pruebas, build ni credenciales expuestas.
   ```
 
   Todos los comandos terminaron con código 0. Next.js 14.2.35 generó `/inspecciones`, `/inspecciones/[id]` y `/api/inspections/[id]` como rutas dinámicas. Webpack mostró advertencias al crear su caché, pero no impidieron la compilación. El reporte se generó en `reports/verification.json`.

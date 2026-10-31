@@ -12,8 +12,11 @@
  * en las páginas es reproducible y verificable. `simulateError` es un gancho
  * de prueba determinista (activado por el query param `fallo=1` en ambas
  * rutas) para ejercitar el estado de error sin depender de un servicio real.
+ * Desde la Semana 9 ese gancho solo actúa con `ENABLE_DEMO_HOOKS=1`
+ * (`src/lib/security/demo-hooks.ts`): sin la variable, `?fallo=1` se ignora.
  */
 
+import { demoHooksEnabled } from "../security/demo-hooks";
 import { inspections, type Inspection } from "./inspections";
 
 export const DEFAULT_DELAY_MS = 350;
@@ -31,7 +34,7 @@ function wait(ms: number): Promise<void> {
 export async function listInspections(options: RepositoryOptions = {}): Promise<Inspection[]> {
   const delayMs = options.delayMs ?? DEFAULT_DELAY_MS;
   await wait(delayMs);
-  if (options.simulateError) {
+  if (options.simulateError && demoHooksEnabled()) {
     throw new Error(SIMULATED_ERROR_MESSAGE);
   }
   return inspections;
@@ -43,7 +46,7 @@ export async function getInspectionById(
 ): Promise<Inspection | null> {
   const delayMs = options.delayMs ?? DEFAULT_DELAY_MS;
   await wait(delayMs);
-  if (options.simulateError) {
+  if (options.simulateError && demoHooksEnabled()) {
     throw new Error(SIMULATED_ERROR_MESSAGE);
   }
   return inspections.find((inspection) => inspection.id === id) ?? null;

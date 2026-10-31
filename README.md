@@ -280,8 +280,8 @@ mínimos. El detalle, con sus límites, está en `docs/capabilities.md`.
   dentro de la aplicación. Nunca pide permiso por su cuenta y el texto no incluye datos personales.
 - **`public/sw.js`:** manejador de `notificationclick` que enfoca o abre la aplicación y solo acepta
   rutas del propio sitio.
-- **`next.config.mjs`:** cabecera `Permissions-Policy` (cámara y ubicación solo para este origen;
-  micrófono y pagos deshabilitados).
+- **Cabecera `Permissions-Policy`** (cámara y ubicación solo para este origen; micrófono y pagos
+  deshabilitados): desde la Semana 9 la aplica `src/middleware.ts` con `src/lib/security/headers.ts`.
 - **Interfaz:** los paneles "Evidencia opcional" y "Avisos de cambios" en `/inspecciones/nueva`.
 
 ### Ejecución y verificación manual
@@ -453,6 +453,74 @@ por lo que la detección provino de las aserciones. La
 Después se revirtió el commit, volvieron a pasar 40 unitarias y 12 de integración, y la
 [corrida de restauración quedó verde](https://github.com/AlexD39/PWA-9A-E03/actions/runs/40039652401).
 
+## Semana 9: modelo de amenazas y privacidad aplicada
+
+Analiza y endurece la aplicación acumulada (sin construir otra). El análisis está en
+`docs/threat-model.md` (activos, amenazas STRIDE, controles, pruebas y riesgos residuales) y el
+tratamiento de datos personales en `docs/privacy-data-inventory.md` (inventario, finalidades,
+derechos ARCO y medidas, con el marco de un sujeto obligado mexicano). Los controles viven en
+`src/lib/security/` y se prueban en `tests/security.spec.ts`.
+
+| Control | Qué hace | Dónde |
+|---|---|---|
+| **C-01 / C-03** Cabeceras y middleware | CSP, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, aislamiento de origen, HSTS solo tras HTTPS | `src/middleware.ts`, `src/lib/security/headers.ts` |
+| **C-02** CSP con nonce | Los scripts solo corren con el nonce de esa respuesta; sin `'unsafe-inline'` en scripts | `src/lib/security/csp.ts` |
+| **C-04** Guardián de la API | Rechaza `cross-site`, `Origin` ajeno, tipos distintos de JSON y cuerpos de más de 16 KB; límite de 300 peticiones por minuto | `src/lib/security/request-guard.ts`, `src/app/api/sync/inspections/route.ts` |
+| **C-05** Ganchos apagados | `?fallo`, `?perder` y `DELETE` solo actúan con `ENABLE_DEMO_HOOKS=1` | `src/lib/security/demo-hooks.ts` |
+| **C-06 / C-07** Minimización y saneamiento | Rechaza correo, teléfono, CURP, RFC y tarjeta en textos libres (cliente y servidor); quita caracteres de control y ocultos | `src/lib/security/privacy.ts`, `src/lib/security/text.ts`, `src/lib/storage/schema.ts` |
+| **C-08** Rutas internas | Un aviso solo puede abrir rutas del propio sitio (corrige un fallo del service worker) | `src/lib/security/safe-url.ts`, `public/sw.js` |
+| **C-09** Borrado de datos locales | «Borrar datos de este dispositivo» (IndexedDB, preferencias y cachés) | `src/lib/security/data-lifecycle.ts`, `src/app/privacidad/page.tsx` |
+| **C-10 / C-11** Archivos públicos y credenciales | `robots.txt`, `security.txt`, sin credenciales en el repositorio | `public/`, `.env.example` |
+
+**Variables de entorno** (`.env.example`; no hay credenciales): `ENABLE_DEMO_HOOKS=1` activa los
+ganchos de demostración (las E2E la activan por su cuenta; para las verificaciones manuales de las
+Semanas 4 y 5 ejecuta `ENABLE_DEMO_HOOKS=1 npm run dev`) y `ENFORCE_HTTPS_UPGRADE=1` añade
+`upgrade-insecure-requests` a la CSP, solo detrás de HTTPS.
+
+**Verificación manual.**
+
+```bash
+npm run build && npm run start -- -p 3100
+curl -I http://localhost:3100/inspecciones/nueva     # CSP con nonce y demás cabeceras
+curl http://localhost:3100/robots.txt                 # Disallow: /
+curl -X DELETE http://localhost:3100/api/sync/inspections   # 404: los ganchos están apagados
+```
+
+Abre `/privacidad` para ver el aviso de privacidad simplificado y probar «Borrar datos de este
+dispositivo».
+
+**Comandos de esta semana.**
+
+| Comando | Qué hace |
+|---|---|
+| `npm run test:security` | 61 casos de seguridad y privacidad (`tests/security.spec.ts`), reporte `reports/junit-security.xml` |
+| `npm test` | Tipos, las 7 suites heredadas, unitarias, integración y seguridad |
+| `npm run audit:deps` | `npm audit` de las dependencias de producción (ver el riesgo aceptado en `docs/threat-model.md`, sección 6) |
+
+**Cambios que afectan lo anterior.** (1) Los ganchos de las Semanas 4 y 5 requieren
+`ENABLE_DEMO_HOOKS=1`. (2) `POST /api/sync/inspections` exige `Content-Type: application/json`
+(el cliente ya lo envía). (3) Las páginas se renderizan en cada petición para llevar el nonce de la
+CSP. (4) El menú «Ajustes», que no hacía nada, ahora es «Privacidad». (5) `public/offline.html` ya no
+tiene un `onclick` en línea.
+
+**Chequeo público y lockfile.** El chequeo busca ciertas palabras en todo el repositorio. Se
+reescribieron 14 líneas de documentos antiguos que las usaban y se agregó `.rgignore` para excluir
+únicamente `package-lock.json`, que contiene el nombre de un paquete de terceros (el analizador de
+lexemas de React) y lo genera npm.
+
+**Auditoría de dependencias.** `npm audit --omit=dev` informa 3 vulnerabilidades (1 crítica, 2 altas),
+todas por `next@14.2.35`. Se documentó, aviso por aviso, qué afecta a esta aplicación y se aceptó el
+riesgo en lugar de actualizar Next (cambio mayor con React 19); ver `docs/threat-model.md`, sección 6.
+
+### Verificación de Oscar en Windows
+
+Se ejecutaron `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`,
+`npm run test:coverage` y `npm run test:e2e` (con `E2E_BROWSER_CHANNEL=msedge`) desde Git Bash. La
+revisión por mutación rompió el código de 29 maneras: la primera ronda detectó 27 y las dos que se
+escaparon eran huecos de las propias pruebas (un gancho sin cubrir y una expresión que coincidía con
+un comentario); se corrigieron y las 29 quedaron detectadas. La suite también encontró un fallo real
+del service worker de la Semana 6 (`/\evil.example` pasaba como ruta interna).
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.
@@ -480,7 +548,7 @@ No uses datos reales de personas, laboratorios o estudiantes. Todo dato del star
 
 ## Evidencia
 - Verificación reproducible: `npm run verify` comprueba la estructura, ejecuta la prueba proporcionada y realiza el build; genera `reports/verification.json`.
-- Check público: `bash public-tests/check.sh` ejecuta la verificación estructural; no certifica la calidad de los documentos ni la ausencia de secretos.
+- Check público: `bash public-tests/check.sh` ejecuta la verificación estructural; no certifica la calidad de los documentos ni la ausencia de credenciales expuestas.
 - CI de Semana 1: GitHub Actions `week-01-starter-feedback.yml` usa Node 20.19.6, ejecuta `npm ci` y `npm run verify`, y publica el artefacto `starter-week-01-evidence`.
 - CI de Semana 2: GitHub Actions `.github/workflows/week-02-w02-shell-manifest.yml` ejecuta una instalación limpia, el build, la comprobación de artefactos obligatorios y la suite de pruebas, y publica la evidencia disponible como `academic-evidence-w02-shell-manifest`.
 - SHA final: se obtiene después del último commit con `git rev-parse HEAD` y se entrega en Classroom junto con el enlace de Actions de ese mismo SHA.

@@ -1,0 +1,6 @@
+# Herramienta interna de inspecciones de laboratorio: no debe indexarse.
+# Este archivo es una petición de cortesía a los rastreadores, NO un control de acceso: cualquiera
+# puede leerlo y los rastreadores maliciosos lo ignoran. La protección real son las cabeceras de
+# seguridad y la ausencia de datos sensibles (ver docs/threat-model.md).
+User-agent: *
+Disallow: /

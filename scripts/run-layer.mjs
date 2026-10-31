@@ -13,7 +13,7 @@
  * Playwright (`npm run test:e2e`).
  */
 
-import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -21,7 +21,7 @@ const root = resolve(import.meta.dirname, "..");
 const tsc = resolve(root, "node_modules", "typescript", "bin", "tsc");
 const buildDir = resolve(root, ".test-build");
 const reportsDir = resolve(root, "reports");
-const known = ["unit", "integration"];
+const known = ["unit", "integration", "security"];
 const layers = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
 
 if (layers.length === 0 || layers.some((layer) => !known.includes(layer))) {
@@ -49,7 +49,11 @@ if (compile.status !== 0) {
 mkdirSync(reportsDir, { recursive: true });
 let exitCode = 0;
 for (const layer of layers) {
-  const files = collect(resolve(buildDir, "tests", layer));
+  // La capa "security" es un solo archivo, tests/security.spec.ts (entregable de la Semana 9).
+  const files =
+    layer === "security"
+      ? [resolve(buildDir, "tests", "security.spec.js")].filter((file) => existsSync(file))
+      : collect(resolve(buildDir, "tests", layer));
   if (files.length === 0) {
     console.error(`No hay pruebas en la capa "${layer}".`);
     exitCode = 1;

@@ -1,0 +1,4 @@
+# Archivo generado por npm: contiene nombres de paquetes de terceros (por ejemplo, el analizador
+# de lexemas que usa React) que coinciden con las palabras que busca el chequeo público.
+# Se excluye solo el lockfile; el resto del repositorio sí se revisa.
+package-lock.json

@@ -1,5 +1,9 @@
 export {};
 
+// Semana 9: los ganchos de demostración (?fallo, ?perder, DELETE) están apagados por omisión;
+// esta suite los ejercita a propósito.
+process.env.ENABLE_DEMO_HOOKS = "1";
+
 const assert = require("node:assert/strict");
 const { renderToStaticMarkup } = require("react-dom/server");
 const repo = require("../src/lib/data/inspections-repository");
