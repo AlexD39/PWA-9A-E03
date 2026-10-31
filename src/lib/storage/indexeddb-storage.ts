@@ -52,7 +52,16 @@ export function createIndexedDbStorage(options: IndexedDbStorageOptions = {}): S
           if (!db.objectStoreNames.contains(name)) db.createObjectStore(name);
         });
       };
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const db = request.result;
+        // Si otra parte (p. ej. «Borrar datos de este dispositivo») pide borrar o actualizar la
+        // base, esta conexión se cierra para no bloquearla; la siguiente operación vuelve a abrir.
+        db.onversionchange = () => {
+          db.close();
+          opened = null;
+        };
+        resolve(db);
+      };
       request.onerror = () => reject(request.error ?? new Error("no se pudo abrir IndexedDB"));
       request.onblocked = () => reject(new Error("apertura de IndexedDB bloqueada por otra pestaña"));
     });

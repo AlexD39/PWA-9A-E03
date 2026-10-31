@@ -204,7 +204,20 @@ var DEFAULT_NOTIFICATION_URL = "/inspecciones/nueva#sincronizacion";
 // Solo se acepta una ruta del propio sitio ("/algo", nunca "//host" ni un esquema).
 function safeNotificationUrl(data) {
   var url = data && typeof data.url === "string" ? data.url : "";
-  if (url.charAt(0) === "/" && url.charAt(1) !== "/") return url;
+  // Misma regla que src/lib/security/safe-url.ts (un service worker no puede importar módulos y
+  // tests/security.spec.ts comprueba que no se desalineen): una sola "/" inicial, sin barras
+  // invertidas (el navegador las trata como "/", así que "/\evil.example" sería "//evil.example"),
+  // sin espacios ni caracteres de control y de tamaño acotado.
+  if (
+    url.length > 0 &&
+    url.length <= 512 &&
+    url.charAt(0) === "/" &&
+    url.charAt(1) !== "/" &&
+    url.indexOf("\\") === -1 &&
+    !/[\u0000- \u007F-\u009F]/.test(url)
+  ) {
+    return url;
+  }
   return DEFAULT_NOTIFICATION_URL;
 }
 

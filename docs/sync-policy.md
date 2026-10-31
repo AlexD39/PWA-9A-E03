@@ -153,6 +153,10 @@ completa. Ganchos de prueba manual, en la línea de `?fallo=1` de la Semana 4:
 | `?perder=1` en la página | El servidor **aplica** la operación y responde 503: la respuesta "se pierde" |
 | `DELETE /api/sync/inspections` | Reinicia el almacén del servidor |
 
+**Desde la Semana 9 estos ganchos están apagados por omisión:** solo actúan con `ENABLE_DEMO_HOOKS=1`
+(`src/lib/security/demo-hooks.ts`). Sin la variable, `?fallo` y `?perder` se ignoran y `DELETE` responde
+404. Para las verificaciones manuales: `ENABLE_DEMO_HOOKS=1 npm run dev` (o `npm run start`).
+
 ## 10. Supuestos
 
 - Un solo usuario por navegador; no hay autenticación en esta semana.
@@ -167,7 +171,7 @@ completa. Ganchos de prueba manual, en la línea de `?fallo=1` de la Semana 4:
 |---|---|---|
 | El servidor simulado vive en memoria | Al reiniciar el servidor se pierden sus datos, aunque el dispositivo siga marcándolos como sincronizados (se observó en la verificación) | Aceptado: no hay base de datos real; un servidor real persistiría y reconciliaría |
 | `processed` (claves de idempotencia) crece sin tope | Memoria ilimitada en un servidor de larga vida | Un servidor real expiraría las claves pasado un plazo |
-| Ganchos `?fallo`, `?perder` y `DELETE` accesibles | Cualquiera puede forzar errores o vaciar el servidor simulado | Aceptado para esta actividad; se retirarían o protegerían antes de producción |
+| Ganchos `?fallo`, `?perder` y `DELETE` accesibles | Cualquiera puede forzar errores o vaciar el servidor simulado | **Resuelto en la Semana 9:** apagados por omisión (`ENABLE_DEMO_HOOKS=1` los activa); ver `docs/threat-model.md`, amenaza T-05 |
 | Sin Web Locks entre pestañas | Dos pestañas pueden enviar la misma operación | Seguro: misma clave, el servidor deduplica; el lease evita pisarse |
 | Conflictos por reloj | Un reloj adelantado gana los empates "más reciente" | Reglas de `status` y `findings` no dependen del reloj; el empate lo gana el servidor |
 | El adaptador de IndexedDB no se ejecuta en Node | No lo cubren las pruebas automatizadas, solo la verificación manual | La lógica de la cola se prueba contra el adaptador en memoria, que cumple el mismo contrato |

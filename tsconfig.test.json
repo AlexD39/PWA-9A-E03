@@ -13,5 +13,5 @@
     "jsx": "react-jsx",
     "plugins": []
   },
-  "include": ["tests/unit/**/*.ts", "tests/integration/**/*.ts", "tests/fixtures/**/*.ts"]
+  "include": ["tests/unit/**/*.ts", "tests/integration/**/*.ts", "tests/fixtures/**/*.ts", "tests/security.spec.ts"]
 }

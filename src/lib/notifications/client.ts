@@ -16,6 +16,8 @@
  * Todo es inyectable (`NotifierDeps`) y nada lanza. Ver docs/capabilities.md.
  */
 
+import { safeInternalPath } from "../security/safe-url";
+
 export type PermissionState = "granted" | "denied" | "default" | "unsupported";
 export type NotificationKind = "synced" | "conflict" | "failed" | "info";
 export type DeliveryChannel = "system" | "in-app" | "none";
@@ -193,7 +195,7 @@ export function createNotifier(deps: NotifierDeps = {}): Notifier {
       body: notification.body,
       tag: notification.tag,
       icon: deps.iconUrl || "/icons/icon-192.svg",
-      data: { url: deps.targetUrl || DEFAULT_TARGET_URL, kind: notification.kind }
+      data: { url: safeInternalPath(deps.targetUrl, DEFAULT_TARGET_URL), kind: notification.kind }
     };
     try {
       const registration = deps.getRegistration ? await deps.getRegistration() : undefined;

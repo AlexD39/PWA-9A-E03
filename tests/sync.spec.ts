@@ -1,5 +1,9 @@
 export {};
 
+// Semana 9: los ganchos de demostración (?fallo, ?perder, DELETE) están apagados por omisión;
+// esta suite los ejercita a propósito.
+process.env.ENABLE_DEMO_HOOKS = "1";
+
 const assert = require("node:assert/strict");
 const schema = require("../src/lib/storage/schema");
 const { createMemoryStorage } = require("../src/lib/storage/memory-storage");
@@ -472,9 +476,9 @@ test("compact elimina operaciones terminadas antiguas", async () => {
 });
 
 // Route Handler directo.
-test("DELETE reinicia el servidor de ruta", async () => assert.equal((await route.DELETE()).status, 200));
+test("DELETE reinicia el servidor de ruta", async () => assert.equal((await route.DELETE(new Request("http://localhost/api/sync/inspections", { method: "DELETE" }))).status, 200));
 test("POST rechaza JSON invalido", async () => {
-  const response = await route.POST(new Request("http://localhost/api/sync/inspections", { method: "POST", body: "{" }));
+  const response = await route.POST(new Request("http://localhost/api/sync/inspections", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{" }));
   assert.equal(response.status, 400);
 });
 test("POST valida la cabecera de idempotencia", async () => {
@@ -482,26 +486,26 @@ test("POST valida la cabecera de idempotencia", async () => {
   assert.equal(response.status, 422);
 });
 test("POST aplica y luego deduplica", async () => {
-  await route.DELETE();
+  await route.DELETE(new Request("http://localhost/api/sync/inspections", { method: "DELETE" }));
   const request = () => new Request("http://localhost/api/sync/inspections", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "op-001" }, body: JSON.stringify(wire()) });
   assert.equal((await route.POST(request())).status, 200);
   const replay = await route.POST(request());
   assert.equal((await replay.json()).status, "duplicate");
 });
 test("gancho fallo responde 503 sin aplicar", async () => {
-  await route.DELETE();
-  const response = await route.POST(new Request("http://localhost/api/sync/inspections?fallo=1", { method: "POST", body: JSON.stringify(wire()) }));
+  await route.DELETE(new Request("http://localhost/api/sync/inspections", { method: "DELETE" }));
+  const response = await route.POST(new Request("http://localhost/api/sync/inspections?fallo=1", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(wire()) }));
   assert.equal(response.status, 503);
-  assert.equal((await (await route.GET()).json()).records.length, 0);
+  assert.equal((await (await route.GET(new Request("http://localhost/api/sync/inspections"))).json()).records.length, 0);
 });
 test("gancho perder aplica antes del 503", async () => {
-  await route.DELETE();
-  const response = await route.POST(new Request("http://localhost/api/sync/inspections?perder=1", { method: "POST", body: JSON.stringify(wire()) }));
+  await route.DELETE(new Request("http://localhost/api/sync/inspections", { method: "DELETE" }));
+  const response = await route.POST(new Request("http://localhost/api/sync/inspections?perder=1", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(wire()) }));
   assert.equal(response.status, 503);
-  assert.equal((await (await route.GET()).json()).records.length, 1);
+  assert.equal((await (await route.GET(new Request("http://localhost/api/sync/inspections"))).json()).records.length, 1);
 });
 test("GET informa registros y claves procesadas", async () => {
-  const body = await (await route.GET()).json();
+  const body = await (await route.GET(new Request("http://localhost/api/sync/inspections"))).json();
   assert.equal(body.records.length, 1);
   assert.equal(body.processedKeys, 1);
 });

@@ -1,0 +1,6 @@
+# Canal para reportar vulnerabilidades (RFC 9116). Datos de EJEMPLO: este proyecto es académico
+# y el dominio .invalid nunca resuelve; en un despliegue real se sustituye por el contacto oficial.
+Contact: mailto:seguridad@ejemplo.invalid
+Expires: 2027-10-31T00:00:00.000Z
+Preferred-Languages: es
+Policy: https://ejemplo.invalid/politica-de-divulgacion

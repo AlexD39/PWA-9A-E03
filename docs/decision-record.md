@@ -27,7 +27,7 @@ Restricciones que gobiernan la decisión:
 - **Stack fijado por el curso:** Next.js (App Router) + React + TypeScript
   sobre APIs web estándar; el starter ya compila con Next 14.2.35.
 - **Datos exclusivamente sintéticos:** todo proviene de
-  `src/lib/data/inspections.ts` (3 registros); prohibidos PII, secretos y
+  `src/lib/data/inspections.ts` (3 registros); prohibidos PII, credenciales y
   `.env` (lo verifica `public-tests/check.sh`).
 - **Estado inicial honesto:** `src/app/page.tsx` declara "PWA aún no
   implementada". En S1 NO se implementan manifest, Service Worker,

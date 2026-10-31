@@ -16,7 +16,7 @@ Alcance del producto:
 - Notificaciones y degradación segura
 - Datos sintéticos versionados
 
-Fuera del alcance: datos reales de estudiantes o personal, integraciones institucionales reales, secretos o llaves personales, servicios de pago obligatorios.
+Fuera del alcance: datos reales de estudiantes o personal, integraciones institucionales reales, credenciales o llaves personales, servicios de pago obligatorios.
 
 ## 2. Usuarios y escenarios
 
@@ -71,7 +71,7 @@ conexión a internet.
 
 **RNF-03 (Reproducibilidad):** Cualquier persona que clone el repositorio y ejecute `npm ci && npm run build` obtendrá una compilación exitosa sin errores.
 
-**RNF-04 (Seguridad y privacidad):** No se almacenarán ni transmitirán secretos, tokens, contraseñas ni datos personales reales.
+**RNF-04 (Seguridad y privacidad):** No se almacenarán ni transmitirán credenciales, claves de acceso, contraseñas ni datos personales reales.
 
 **RNF-05 (Accesibilidad):** La aplicación será navegable completamente por teclado y incluirá atributos ARIA para lectores de pantalla.
 
@@ -98,7 +98,7 @@ Está estrictamente prohibido incluir en el repositorio:
 
 - Datos reales de estudiantes o personal de la UTT
 - Nombres reales, matrículas, correos o teléfono
-- Secretos, tokens, contraseñas o API keys
+- Credenciales, claves de acceso, contraseñas o claves de API
 - Archivos `.env` con credenciales
 - Integraciones con servicios de pago o institucionales reales
 
@@ -110,7 +110,7 @@ Está estrictamente prohibido incluir en el repositorio:
 | Aplicación funcional | Se muestran 3 inspecciones sintéticas | `npm run dev` → localhost:3000 |
 | Build exitoso | La compilación de producción completa sin errores | `npm run build` |
 | Verificación de estructura | Todos los archivos requeridos existen | `make verify` (código 0) |
-| Check público | No hay secretos ni archivos faltantes | `bash public-tests/check.sh` → PUBLIC_OK |
+| Check público | No hay credenciales expuestas ni archivos faltantes | `bash public-tests/check.sh` → PUBLIC_OK |
 | Documentación | Requisitos y decisión técnica están completos | Inspección manual de `docs/` |
 | Evidencia individual | Contribución, SHA, prueba y limitación documentados | Inspección manual de `evidence/individual.md` |
 

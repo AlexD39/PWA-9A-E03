@@ -10,6 +10,9 @@
  * lo que permite probar la cola de sincronización de forma determinista.
  */
 
+import { describePersonalData, findPersonalData } from "../security/privacy";
+import { sanitizeText } from "../security/text";
+
 export const DB_NAME = "inspecciones-lab";
 export const CURRENT_SCHEMA_VERSION = 1;
 
@@ -210,7 +213,7 @@ export function validateInspectionFields(input: unknown): ValidationResult<Inspe
   }
   const errors: string[] = [];
 
-  const location = typeof input.location === "string" ? input.location.trim() : "";
+  const location = typeof input.location === "string" ? sanitizeText(input.location).trim() : "";
   if (location.length < 1 || location.length > LIMITS.locationMax) {
     errors.push(`location: obligatorio, máximo ${LIMITS.locationMax} caracteres`);
   }
@@ -220,7 +223,7 @@ export function validateInspectionFields(input: unknown): ValidationResult<Inspe
     errors.push("date: debe ser una fecha válida con formato AAAA-MM-DD");
   }
 
-  const inspector = typeof input.inspector === "string" ? input.inspector.trim() : "";
+  const inspector = typeof input.inspector === "string" ? sanitizeText(input.inspector).trim() : "";
   if (inspector.length < 1 || inspector.length > LIMITS.inspectorMax) {
     errors.push(`inspector: obligatorio, máximo ${LIMITS.inspectorMax} caracteres`);
   }
@@ -240,10 +243,24 @@ export function validateInspectionFields(input: unknown): ValidationResult<Inspe
     errors.push(`findings: debe ser un entero entre 0 y ${LIMITS.findingsMax}`);
   }
 
-  const summary = typeof input.summary === "string" ? input.summary.trim() : "";
+  const summary = typeof input.summary === "string" ? sanitizeText(input.summary, { multiline: true }).trim() : "";
   if (typeof input.summary !== "string" || summary.length > LIMITS.summaryMax) {
     errors.push(`summary: texto de máximo ${LIMITS.summaryMax} caracteres`);
   }
+
+  // Minimización (Semana 9): la inspección trata del equipo, no de personas. Un correo, teléfono,
+  // CURP, RFC o tarjeta en un texto libre no tiene finalidad aquí y se rechaza. El mensaje nombra
+  // el TIPO de dato, nunca su valor.
+  [
+    ["location", location],
+    ["inspector", inspector],
+    ["summary", summary]
+  ].forEach((pair) => {
+    const findings = findPersonalData(pair[1]);
+    if (findings.length > 0) {
+      errors.push(`${pair[0]}: contiene un dato personal (${describePersonalData(findings)}); no lo capture`);
+    }
+  });
 
   if (errors.length === 0) {
     if (status === "ok" && findings !== 0) {

@@ -73,7 +73,7 @@ const required = [
 const missing = required.filter(file => !existsSync(resolve(root, file)));
 const structureOnly = process.argv.includes("--structure");
 if (structureOnly) {
-  console.log(missing.length ? `Faltan archivos: ${missing.join(", ")}` : "Estructura presente. No valida contenido, pruebas, build ni secretos.");
+  console.log(missing.length ? `Faltan archivos: ${missing.join(", ")}` : "Estructura presente. No valida contenido, pruebas, build ni credenciales expuestas.");
   process.exit(missing.length ? 1 : 0);
 }
 const checks = [{ id: "structure", status: missing.length ? "fail" : "pass", missing }];
@@ -100,7 +100,7 @@ const result = {
   status: checks.every(c => c.status === "pass") ? "pass" : "fail",
   checks,
   academicReview: { status: "pending", message: "Sin calificaciÃ³n automÃ¡tica. Revisar requisitos, decisiÃ³n y evidencia por integrante con la rÃºbrica; existencia no implica calidad.", documents },
-  limits: ["La instalaciÃ³n se verifica mediante npm ci por separado.", "No certifica ausencia de secretos.", "Las pruebas proporcionadas no cubren toda la aplicaciÃ³n."]
+  limits: ["La instalaciÃ³n se verifica mediante npm ci por separado.", "No certifica ausencia de credenciales expuestas.", "Las pruebas proporcionadas no cubren toda la aplicaciÃ³n."]
 };
 mkdirSync(resolve(root, "reports"), { recursive: true });
 writeFileSync(resolve(root, "reports/verification.json"), JSON.stringify(result, null, 2) + "\n");

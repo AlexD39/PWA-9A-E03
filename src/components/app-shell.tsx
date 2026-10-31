@@ -9,7 +9,7 @@ const navigation = [
   { href: "/inspecciones", label: "Inspecciones", icon: "▣" },
   { href: "/inspecciones/nueva", label: "Nueva", icon: "+" },
   { href: "/inspecciones/nueva#sincronizacion", label: "Sync", icon: "↻" },
-  { href: "#coming-soon", label: "Ajustes", icon: "⚙" }
+  { href: "/privacidad", label: "Privacidad", icon: "⚙" }
 ];
 
 export function AppShell({ children }: AppShellProps) {

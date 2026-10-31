@@ -1,22 +1,17 @@
 /** @type {import('next').NextConfig} */
-/**
- * Permisos mínimos (Semana 6): la política de permisos habilita la cámara y la
- * ubicación solo para este mismo origen (no para iframes de terceros) y
- * deshabilita el micrófono y los pagos, que la aplicación no usa.
- */
-const permissionsPolicy = "camera=(self), geolocation=(self), microphone=(), payment=()";
 
+/**
+ * Las cabeceras de seguridad (CSP con nonce, Permissions-Policy y el resto) las aplica
+ * `src/middleware.ts` con `src/lib/security/headers.ts`: es la única fuente de verdad.
+ *
+ *  - `poweredByHeader: false` no anuncia la tecnología del servidor.
+ *  - `images.unoptimized: true` desactiva el optimizador de imágenes de Next, que la
+ *    aplicación no usa y que acumula avisos de seguridad (ver docs/threat-model.md).
+ */
 const nextConfig = {
   reactStrictMode: true,
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [{ key: "Permissions-Policy", value: permissionsPolicy }]
-      }
-    ];
-  }
+  poweredByHeader: false,
+  images: { unoptimized: true }
 };
 
 export default nextConfig;
-

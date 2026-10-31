@@ -26,5 +26,5 @@ Dejar un repositorio personal que otra persona pueda clonar, instalar y verifica
 - No entregues el ZIP sin descomprimir.
 - No entregues solo capturas de pantalla.
 - No abras un repositorio nuevo cada semana: es el mismo proyecto acumulativo.
-- No agregues datos personales, tokens, contraseñas ni archivos `.env`.
+- No agregues datos personales, claves de acceso, contraseñas ni archivos `.env`.
 

@@ -18,6 +18,9 @@ import { createHttpTransport } from "../../src/lib/sync/transport";
 import { SYNTHETIC_NOW, sequentialIds, validFields, wireOperation } from "../fixtures/inspections";
 import { routeFetch, serverTransport } from "../fixtures/transports";
 
+// Semana 9: los ganchos de demostración están apagados por omisión; esta suite los ejercita.
+process.env.ENABLE_DEMO_HOOKS = "1";
+
 const BASE = "http://localhost/api/sync/inspections";
 
 function post(body: unknown, headers: Record<string, string> = {}, query = ""): Promise<Response> {
@@ -31,7 +34,7 @@ function post(body: unknown, headers: Record<string, string> = {}, query = ""): 
 }
 
 async function serverState(): Promise<{ records: Array<{ id: string; serverRevision: number }>; processedKeys: number }> {
-  return (await GET()).json();
+  return (await GET(new Request(BASE))).json();
 }
 
 describe("respuesta perdida: el servidor aplicó pero el cliente reintenta", () => {
@@ -63,7 +66,7 @@ describe("respuesta perdida: el servidor aplicó pero el cliente reintenta", () 
   });
 
   it("con el transporte HTTP y la ruta real, perder la respuesta tampoco duplica el registro", async () => {
-    await DELETE();
+    await DELETE(new Request(BASE, { method: "DELETE" }));
     const storage = createMemoryStorage();
     const lossy = createSyncQueue({
       storage,
@@ -98,7 +101,7 @@ describe("respuesta perdida: el servidor aplicó pero el cliente reintenta", () 
 
 describe("ruta POST /api/sync/inspections", () => {
   beforeEach(async () => {
-    await DELETE();
+    await DELETE(new Request(BASE, { method: "DELETE" }));
   });
 
   it("la misma operación enviada dos veces devuelve applied y luego duplicate con el mismo registro", async () => {

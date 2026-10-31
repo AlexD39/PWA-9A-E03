@@ -50,6 +50,9 @@ export default defineConfig({
     url: baseURL,
     // Nunca se reutiliza un servidor ya abierto: uno viejo (con otra compilación) daría resultados falsos.
     reuseExistingServer: false,
+    // Las E2E usan a propósito los ganchos de demostración (DELETE, ?fallo, ?perder), que la
+    // aplicación apaga por omisión (src/lib/security/demo-hooks.ts).
+    env: { ENABLE_DEMO_HOOKS: "1" },
     timeout: 120_000
   }
 });

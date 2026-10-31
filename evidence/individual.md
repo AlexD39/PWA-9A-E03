@@ -10,7 +10,7 @@
 - Decisión que puedo explicar y por qué: Elegí PWA sobre web tradicional, app nativa y multiplataforma porque responde a la conectividad intermitente mediante capacidades web progresivas, mantiene un solo código Next.js/TypeScript y evita tiendas de aplicaciones. También puedo explicar sus costos, riesgos de caché y soporte desigual del dispositivo.
 - Comando o prueba proporcionada que ejecuté: `npm run verify` desde la raíz del repositorio final.
 - Resultado real que observé: La verificación técnica del equipo terminó con `Verificación técnica: pass. Revisión académica: pendiente. Reporte: reports/verification.json`. Debo conservar el reporte generado sobre el mismo SHA final que se entregue.
-- Qué verifica esa prueba y qué no verifica: Verifica la estructura requerida, ejecuta `starter.spec.mjs` y compila la aplicación. No califica la calidad de los documentos, no implementa ni prueba todavía el funcionamiento offline y no certifica la ausencia de secretos.
+- Qué verifica esa prueba y qué no verifica: Verifica la estructura requerida, ejecuta `starter.spec.mjs` y compila la aplicación. No califica la calidad de los documentos, no implementa ni prueba todavía el funcionamiento offline y no certifica la ausencia de credenciales expuestas.
 - Limitación, dificultad o riesgo que identifiqué: En Semana 1 el offline aún no existe; `src/app/page.tsx` indica `PWA aún no implementada`. Manifest, Service Worker, sincronización, notificaciones y autenticación quedan para semanas posteriores. También encontré diferencias de CRLF y ejecución de scripts Bash entre Windows, WSL y CI.
 - Uso de IA: Usé opencode/Muse Spark para estructurar el ADR-001, revisar el encuadre y los requisitos, y diagnosticar problemas de entorno. Validé y ajusté la redacción contra el starter y ejecuté la verificación; puedo explicar y defender los cambios.
 
@@ -302,7 +302,7 @@
 - Decisión que puedo explicar y por qué: La verificación principal debe concentrarse en `npm run verify`, porque la versión aclarada ejecuta la prueba proporcionada y el build, además de revisar la estructura. El workflow usa Node 20.19.6 y `npm ci` para mantener una ejecución reproducible en CI.
 - Comando o prueba proporcionada que ejecuté: En PowerShell ejecuté `npm.cmd ci` y `npm.cmd run verify` desde la raíz del repositorio.
 - Resultado real que observé: `npm.cmd ci` terminó con código 0 e instaló 28 paquetes. La prueba mostró `starter.spec.mjs: PASS`; el build de Next.js 14.2.35 compiló correctamente y generó las cuatro páginas estáticas. El resultado final fue `Verificación técnica: pass. Revisión académica: pendiente. Reporte: reports/verification.json`. Webpack mostró dos advertencias de caché, pero el proceso terminó con código 0.
-- Qué verifica esa prueba y qué no verifica: Verifica la presencia de archivos, la prueba proporcionada y el build. No califica la calidad de los requisitos, no valida que la PWA futura ya tenga funcionamiento offline y no certifica la ausencia de secretos.
+- Qué verifica esa prueba y qué no verifica: Verifica la presencia de archivos, la prueba proporcionada y el build. No califica la calidad de los requisitos, no valida que la PWA futura ya tenga funcionamiento offline y no certifica la ausencia de credenciales expuestas.
 - Limitación, dificultad o riesgo que identifiqué: La actividad todavía no implementa manifest, Service Worker, funcionamiento offline, sincronización, notificaciones ni autenticación. Además, los saltos CRLF de Windows pueden afectar la ejecución local de scripts Bash; CI usa Ubuntu.
 - Uso de IA: Utilicé Codex para comparar y revisar los cuatro archivos técnicos y registrar las versiones del entorno. Validé personalmente la aportación ejecutando `npm.cmd ci` y `npm.cmd run verify`, y revisé que la prueba, el build y el reporte terminaran correctamente.
 
@@ -334,7 +334,7 @@
   offline.spec.ts: PASS
   Compiled successfully
   Verificación técnica: pass
-  Estructura presente. No valida contenido, pruebas, build ni secretos.
+  Estructura presente. No valida contenido, pruebas, build ni credenciales expuestas.
   ```
 
   Todos los comandos terminaron con código 0. Next.js 14.2.35 generó cuatro páginas estáticas y el reporte quedó en `reports/verification.json`. Webpack mostró advertencias de caché, pero no impidieron la compilación.
@@ -360,7 +360,7 @@
   rendering.spec.ts: PASS
   Compiled successfully
   Verificación técnica: pass
-  Estructura presente. No valida contenido, pruebas, build ni secretos.
+  Estructura presente. No valida contenido, pruebas, build ni credenciales expuestas.
   ```
 
   Todos los comandos terminaron con código 0. Next.js 14.2.35 generó `/inspecciones`, `/inspecciones/[id]` y `/api/inspections/[id]` como rutas dinámicas. Webpack mostró advertencias al crear su caché, pero no impidieron la compilación. El reporte se generó en `reports/verification.json`.

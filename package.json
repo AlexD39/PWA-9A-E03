@@ -11,8 +11,10 @@
     "test": "node scripts/run-tests.mjs",
     "test:unit": "node scripts/run-layer.mjs unit",
     "test:integration": "node scripts/run-layer.mjs integration",
+    "test:security": "node scripts/run-layer.mjs security",
+    "audit:deps": "npm audit --omit=dev",
     "test:e2e": "playwright test",
-    "test:coverage": "c8 node scripts/run-layer.mjs unit integration",
+    "test:coverage": "c8 node scripts/run-layer.mjs unit integration security",
     "verify": "node scripts/verify.mjs"
   },
   "dependencies": {
