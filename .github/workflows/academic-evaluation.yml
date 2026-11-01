@@ -48,11 +48,18 @@ jobs:
       - name: Pruebas de integración
         run: npm run test:integration
 
+      - name: Pruebas de seguridad
+        run: npm run test:security
+
       - name: Suites de semanas anteriores y verificación completa sin navegador
         run: npm test
 
       - name: Cobertura
         run: npm run test:coverage
+
+      - name: Auditoría de dependencias (informativa)
+        continue-on-error: true
+        run: npm run -s audit:deps -- --json > reports/npm-audit.json
 
       - name: Instalar Chromium para E2E
         run: npx playwright install --with-deps chromium

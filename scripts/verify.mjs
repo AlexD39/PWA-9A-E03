@@ -68,6 +68,25 @@ const required = [
   "tests/e2e/helpers.ts",
   "tests/fixtures/inspections.ts",
   "tests/fixtures/transports.ts",
+  "docs/threat-model.md",
+  "docs/privacy-data-inventory.md",
+  "src/lib/security/csp.ts",
+  "src/lib/security/headers.ts",
+  "src/lib/security/request-guard.ts",
+  "src/lib/security/demo-hooks.ts",
+  "src/lib/security/privacy.ts",
+  "src/lib/security/text.ts",
+  "src/lib/security/safe-url.ts",
+  "src/lib/security/data-lifecycle.ts",
+  "src/middleware.ts",
+  "src/app/privacidad/page.tsx",
+  "src/components/privacy-panel.tsx",
+  "tests/security.spec.ts",
+  "tests/e2e/security.spec.ts",
+  "public/robots.txt",
+  "public/.well-known/security.txt",
+  ".env.example",
+  ".rgignore",
   "evidence/individual.md"
 ];
 const missing = required.filter(file => !existsSync(resolve(root, file)));
@@ -89,7 +108,7 @@ const git = args => {
   const r = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   return r.status === 0 ? r.stdout.trim() : null;
 };
-const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "docs/sync-policy.md", "docs/capabilities.md", "docs/test-strategy.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
+const documents = ["docs/requirements.md", "docs/decision-record.md", "docs/cache-strategy.md", "docs/rendering-decision.md", "docs/sync-policy.md", "docs/capabilities.md", "docs/test-strategy.md", "docs/threat-model.md", "docs/privacy-data-inventory.md", "evidence/individual.md", "README.md"].map(file => ({ file, content: existsSync(resolve(root, file)) ? readFileSync(resolve(root, file), "utf8") : null }));
 const gitStatus = git(["status", "--porcelain"]);
 const result = {
   schemaVersion: 2,

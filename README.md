@@ -521,6 +521,46 @@ escaparon eran huecos de las propias pruebas (un gancho sin cubrir y una expresi
 un comentario); se corrigieron y las 29 quedaron detectadas. La suite también encontró un fallo real
 del service worker de la Semana 6 (`/\evil.example` pasaba como ruta interna).
 
+### Verificación de Alejandro en Windows
+
+La contribución se comprobó desde PowerShell, sobre la aplicación compilada y con Edge como navegador
+Chromium disponible en el equipo:
+
+```powershell
+npm.cmd ci
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+$env:E2E_BROWSER_CHANNEL = "msedge"
+npm.cmd run test:e2e
+npm.cmd run verify
+npm.cmd run -s audit:deps -- --json > reports/npm-audit.json
+```
+
+La instalación agregó 372 paquetes sin cambiar el lockfile. Lint y tipos terminaron sin errores;
+pasaron las siete suites heredadas, 40 pruebas unitarias, 12 de integración y 64 de seguridad. El
+build generó ocho rutas dinámicas y `verify` terminó en `pass`. El chequeo público del kit terminó con
+`PUBLIC_OK`. La auditoría informativa devolvió código 1 y registró tres vulnerabilidades de producción:
+una crítica y dos altas (`next`, `postcss` y `source-map-js`), correspondientes al riesgo aceptado y
+documentado en `docs/threat-model.md`, sección 6.
+
+Playwright mostró aprobados los 19 E2E: los ocho de Semana 8 y los once de seguridad y privacidad de
+Semana 9. Después de mostrar todos los casos como `ok`, el proceso local volvió a quedar abierto en
+Windows dentro de OneDrive y tuvo que detenerse; el puerto 3100 quedó libre. Por ello, el cierre con
+código 0 se comprueba también en GitHub Actions: la
+[evaluación completa sobre el commit evaluado](https://github.com/AlexD39/PWA-9A-E03/actions/runs/41280645368)
+terminó en `success`, y todas las
+[corridas de esta rama](https://github.com/AlexD39/PWA-9A-E03/actions?query=branch%3Afeat%2Fw09-tests-ci-alejandro)
+quedaron en verde.
+
+La revisión automática por mutación detectó las 29 roturas previstas, sin mutaciones omitidas ni no
+aplicadas. También se probaron tres roturas temporales que afectan directamente a los E2E: retirar la
+CSP hizo fallar el caso de cabeceras reales; limitar el middleware a `/api` hizo fallar el caso propio
+de CSP en una respuesta 404; y desactivar el rechazo de datos personales hizo fallar el caso de
+privacidad en pantalla. Cada archivo se restauró antes de continuar y el cierre volvió a aprobar las
+64 pruebas de seguridad y el build.
+
 ## Flujo de trabajo del curso
 
 1. Conserva este repositorio como tu proyecto personal y crea un repositorio privado en GitHub.

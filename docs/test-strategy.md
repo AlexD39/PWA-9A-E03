@@ -90,8 +90,10 @@ semana con un corredor estándar (`node:test`) que produce reportes JUnit.
 | Build | `npm run build` | `next build` |
 | Unitarias | `npm run test:unit` | Compila `tests/unit` y lo ejecuta; reporte `reports/junit-unit.xml` |
 | Integración | `npm run test:integration` | Igual; reporte `reports/junit-integration.xml` |
+| Seguridad | `npm run test:security` | Ejecuta los controles de seguridad y privacidad; reporte `reports/junit-security.xml` |
 | Todo lo que no usa navegador | `npm test` | Tipos, las 7 suites heredadas, unitarias e integración |
 | Cobertura | `npm run test:coverage` | Unitarias + integración bajo `c8`; escribe `coverage/` (`lcov.info`, `coverage-summary.json`) |
+| Auditoría de dependencias | `npm run -s audit:deps -- --json` | Informa vulnerabilidades de producción; el riesgo aceptado está documentado en el modelo de amenazas |
 | E2E | `npm run test:e2e` | Playwright; reportes `reports/junit-e2e.xml`, `reports/e2e-results.json` y `playwright-report/` |
 | Verificación integral | `npm run verify` (`make verify`) | Estructura, lint, tipos, `npm test` y build; escribe `reports/verification.json` |
 

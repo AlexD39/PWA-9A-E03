@@ -612,3 +612,75 @@
   (`test: agregar E2E y CI academica - Semana 8`).
 - SHA final de entrega común: se entrega en Classroom después de integrar el PR; no se escribe en
   este archivo porque un commit no puede contener su propio SHA.
+
+### Semana 9 — Contreras Martinez Alejandro — 3523110460
+
+- Estudiante: Contreras Martinez Alejandro (3523110460). Grupo 9A, equipo E03 (repositorio
+  `PWA-9A-E03`; integrantes: Espinoza Landeta Oscar y Contreras Martinez Alejandro).
+- Commit SHA evaluado: [`5e61d97c270fd0866cda758a0d85b4a1d107006f`](https://github.com/AlexD39/PWA-9A-E03/commit/5e61d97c270fd0866cda758a0d85b4a1d107006f)
+  (`test: agregar E2E y CI de seguridad - Semana 9`). El SHA final común se entrega en Classroom
+  después del merge y no se escribe aquí porque un commit no puede contener su propio SHA.
+- Mi contribución concreta: incorporé `tests/e2e/security.spec.ts` con los ocho casos de referencia
+  y tres propios; agregué tres casos propios a `tests/security.spec.ts`; incorporé sin cambios el
+  workflow del kit; actualicé `.github/workflows/academic-evaluation.yml`, `scripts/verify.mjs` y la
+  tabla de `docs/test-strategy.md`; y documenté en el README la verificación real de Windows. No
+  modifiqué permanentemente los controles implementados por Oscar.
+- Casos propios: en Node comprobé que el límite del cuerpo cuenta bytes y no caracteres, que una
+  CURP escrita en minúsculas se detecta y que `sanitizeText` es idempotente. En navegador comprobé
+  que una respuesta 404 también lleva CSP, que un `Origin` ajeno recibe 403 sin guardar registros y
+  que una imagen PNG sintética permanece local: el estado del servidor contiene a la persona
+  responsable, pero no contiene `data:image`.
+- Decisión técnica que puedo explicar: la CSP debe probarse en Chromium real y no solo buscando
+  texto en la cabecera. Leer la cabecera demuestra que la política fue declarada; el navegador
+  demuestra que la aplica. El caso de inyección agrega un controlador `onerror`, primero espera una
+  violación de CSP en la consola como **control positivo** (prueba que el intento ocurrió y fue
+  bloqueado) y después confirma que `window.__inyectado` sigue sin definirse. También se recarga la
+  aplicación sin conexión para demostrar que el nonce y la CSP no rompen el service worker. La
+  auditoría es informativa porque los tres hallazgos de Next 14.2.35 están analizados como riesgo
+  aceptado: actualizar exige una migración mayor que podría romper las ocho semanas previas; el CI
+  debe conservar el reporte, pero no poner la entrega en rojo por una decisión ya documentada.
+- Prueba que ejecuté y resultado: ejecuté `npm.cmd ci`, lint, tipos, `npm.cmd test`, build, los E2E
+  con `E2E_BROWSER_CHANNEL=msedge`, `npm.cmd run verify`, la auditoría informativa y el chequeo
+  público del kit. Pasaron las siete suites heredadas, 40 unitarias, 12 de integración y 64 de
+  seguridad; el build generó ocho rutas dinámicas, `verify` terminó en `pass` y el chequeo imprimió
+  `PUBLIC_OK`. Los 19 E2E mostraron `ok` localmente. La
+  [evaluación completa de GitHub Actions](https://github.com/AlexD39/PWA-9A-E03/actions/runs/41280645368)
+  terminó en `success` sobre el SHA evaluado y confirmó el cierre con código 0. La auditoría registró
+  tres vulnerabilidades de producción: una crítica y dos altas, correspondientes a `next`, `postcss`
+  y `source-map-js`.
+- Revisión por mutación, cinco ejemplos explicables: (1) S4, hacer constante el nonce, la detectaron
+  «el nonce es base64 de 128 bits y distinto en cada llamada» y «genera un nonce distinto en cada
+  petición»; (2) S10, aceptar cualquier `Origin`, la detectaron los casos C-04 que rechazan un origen
+  ajeno tanto en el guardián como en la ruta real; (3) S12, desactivar el tope del cuerpo, la detectó
+  «limita el cuerpo por tamaño declarado y también cuando llega por partes», junto con mi caso que
+  cuenta bytes; (4) S21, dejar de rechazar datos personales, la detectaron la validación de campos y
+  la defensa del servidor; (5) S25, borrar cualquier caché, la detectó «borra la base local, las
+  preferencias y SOLO las cachés de esta aplicación». El resultado global fue 29 detectadas, cero no
+  detectadas y cero no aplicadas.
+- Mutaciones de mis E2E: retirar temporalmente la cabecera CSP hizo fallar «las páginas y la API
+  llevan las cabeceras de seguridad»; limitar el `matcher` del middleware a `/api/:path*` hizo fallar
+  mi caso de CSP en una respuesta 404; y desactivar el rechazo de datos personales hizo fallar «un
+  dato personal escrito en el resumen se rechaza en pantalla». Cada archivo se restauró antes de
+  continuar y después volvieron a pasar 64 pruebas de seguridad y el build.
+- Limitación o fallo diagnosticado: en Windows dentro de OneDrive, Playwright mostró los 19 casos
+  aprobados pero el proceso quedó abierto después del último resultado; lo detuve y confirmé que el
+  puerto 3100 quedó libre. Ubuntu en Actions sí terminó correctamente, por lo que la limitación es del
+  entorno local y no de las aserciones. Los E2E cubren Edge/Chromium, no otros motores. Además, quitar
+  `export const dynamic = "force-dynamic"` no hace fallar pruebas: la tabla del build sigue marcando
+  todas las rutas como dinámicas porque Next 14.2.35 ya adopta ese comportamiento al usar el
+  middleware con nonce; la declaración conserva explícita la intención y evita depender de ese
+  comportamiento implícito.
+- Cambio que podría defender o modificar en vivo: puedo ampliar el caso propio de origen ajeno para
+  cubrir también `Sec-Fetch-Site: cross-site`, explicar por qué se espera 403 antes de consultar el
+  estado del servidor y demostrar que la misma operación válida se acepta sin el origen hostil.
+  También puedo modificar el caso de la respuesta 404 para inspeccionar otras cabeceras aplicadas por
+  el middleware.
+- Qué demuestra y qué no demuestra: demuestra cabeceras reales, nonce por respuesta, scripts
+  marcados, bloqueo efectivo de una inyección, compatibilidad offline, minimización, borrado local,
+  conservación de la copia del servidor y separación de evidencia local. No demuestra seguridad en
+  otros navegadores, HTTPS real, autenticación, un backend persistente ni ausencia total de
+  vulnerabilidades.
+- Uso declarado de IA: utilicé Codex para analizar las instrucciones y la referencia, preparar y
+  revisar las pruebas, actualizar CI y verificación, ejecutar las comprobaciones y mutaciones, y
+  organizar esta evidencia. Revisé los cambios mostrados, autoricé cada fase importante y contrasté
+  los resultados locales con la corrida de Actions antes de registrarlos.
