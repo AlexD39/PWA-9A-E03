@@ -548,9 +548,11 @@ documentado en `docs/threat-model.md`, sección 6.
 Playwright mostró aprobados los 19 E2E: los ocho de Semana 8 y los once de seguridad y privacidad de
 Semana 9. Después de mostrar todos los casos como `ok`, el proceso local volvió a quedar abierto en
 Windows dentro de OneDrive y tuvo que detenerse; el puerto 3100 quedó libre. Por ello, el cierre con
-código 0 se comprueba también en GitHub Actions. Las
-[corridas de esta rama en Actions](https://github.com/AlexD39/PWA-9A-E03/actions?query=branch%3Afeat%2Fw09-tests-ci-alejandro)
-quedarán disponibles al publicarla.
+código 0 se comprueba también en GitHub Actions: la
+[evaluación completa sobre el commit evaluado](https://github.com/AlexD39/PWA-9A-E03/actions/runs/41280645368)
+terminó en `success`, y todas las
+[corridas de esta rama](https://github.com/AlexD39/PWA-9A-E03/actions?query=branch%3Afeat%2Fw09-tests-ci-alejandro)
+quedaron en verde.
 
 La revisión automática por mutación detectó las 29 roturas previstas, sin mutaciones omitidas ni no
 aplicadas. También se probaron tres roturas temporales que afectan directamente a los E2E: retirar la
