@@ -274,6 +274,15 @@ describe("C-04 guardián de peticiones", () => {
     assert.equal((await readJsonBody(new Request(BASE, { method: "GET" }), 1024)).status, 400);
   });
 
+  it("cuenta bytes y no caracteres al aplicar el tope del cuerpo", async () => {
+    const body = JSON.stringify({ relleno: "ñ".repeat(600) });
+    assert.ok(body.length < 1024, "el texto tiene menos de 1024 caracteres");
+
+    const result = await readJsonBody(new Request(BASE, { method: "POST", body }), 1024);
+    assert.equal(result.status, 413);
+    assert.equal(result.error, "payload-too-large");
+  });
+
   it("el límite de peticiones corta el exceso, informa cuánto esperar y se renueva por ventana", () => {
     let now = 1000;
     const limiter = createRateLimiter({ limit: 3, windowMs: 10000, now: () => now });
@@ -429,6 +438,10 @@ describe("C-06 minimización de datos personales", () => {
     assert.deepEqual(kinds(`tarjeta ${SYNTHETIC.card}`), ["card"]);
   });
 
+  it("detecta una CURP escrita en minúsculas", () => {
+    assert.deepEqual(kinds("curp abcd800101hdfxyz09"), ["curp"]);
+  });
+
   it("detecta teléfonos mexicanos en formatos comunes", () => {
     ["5512345678", "55 1234 5678", "55-1234-5678", "+52 55 1234 5678", "52 5512345678", "656-123-4567", "55 12 34 56 78"].forEach((phone) => {
       assert.deepEqual(kinds(`llamar al ${phone} mañana`), ["phone"], `no detectó ${phone}`);
@@ -504,6 +517,11 @@ describe("C-07 saneamiento de texto", () => {
 
   it("normaliza Unicode: la misma palabra acentuada escrita de dos formas es un solo valor", () => {
     assert.equal(sanitizeText("Revisión"), sanitizeText("Revisión"));
+  });
+
+  it("es idempotente al sanear el mismo texto más de una vez", () => {
+    const text = "  Revisión\u0000 con\ttexto‮ oculto  ";
+    assert.equal(sanitizeText(sanitizeText(text)), sanitizeText(text));
   });
 
   it("la validación guarda el texto ya saneado", () => {
